@@ -1,0 +1,10 @@
+<div class="overlay" role="dialog" aria-modal="true" aria-label="Add a plant">
+  <div class="dialog">
+    <button type="button" class="close" aria-label="Close" onclick="this.closest('.overlay').remove()">&times;</button>
+    <h2>Add a plant</h2>
+    <input type="search" name="q" placeholder="Search plant types, e.g. Monstera" autofocus autocomplete="off"
+      hx-get="/search" hx-trigger="input changed delay:300ms, search" hx-target="#results" hx-indicator="#searching">
+    <span id="searching" class="htmx-indicator">Searching…</span>
+    <div id="results"><p class="hint">Start typing to search.</p></div>
+  </div>
+</div>

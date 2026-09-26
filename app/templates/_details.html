@@ -1,0 +1,30 @@
+<div class="overlay" role="dialog" aria-modal="true" aria-label="{{ card.plant.name }}">
+  <div class="dialog">
+    <button type="button" class="close" aria-label="Close" onclick="this.closest('.overlay').remove()">&times;</button>
+    <img class="hero" src="{{ card.plant.photo or '/static/placeholder.svg' }}" alt="">
+    <h2>{{ card.plant.name }}</h2>
+    <p><span class="badge {{ card.status }}">{{ card.label }}</span></p>
+    {% if watered %}
+    <p class="notice ok">Watered! Next watering in {{ card.days }} day{{ '' if card.days == 1 else 's' }}.</p>
+    {% endif %}
+    <dl>
+      <dt>Light</dt>
+      <dd>{{ card.plant.light or 'Not available' }}</dd>
+      <dt>Watering</dt>
+      <dd>Every {{ card.plant.interval_days }} day{{ '' if card.plant.interval_days == 1 else 's' }}</dd>
+    </dl>
+    {% if card.plant.about %}
+    <p class="about">{{ card.plant.about }}</p>
+    {% if card.plant.photo_credit %}
+    <p class="credit">Photo and text: <a href="{{ card.plant.photo_credit }}" target="_blank" rel="noopener">Wikipedia</a></p>
+    {% endif %}
+    {% endif %}
+    {% if card.plant.data_source == 'local-fallback' %}
+    <p class="notice">Offline data was used for this plant: the online photo could not be loaded.</p>
+    {% endif %}
+    <div class="actions">
+      <button type="button" class="primary" hx-post="/plants/{{ card.plant.id }}/watered" hx-target="#modal">Watered</button>
+      <button type="button" class="danger" hx-get="/plants/{{ card.plant.id }}/confirm-remove" hx-target="#modal">Remove</button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,11 @@
+{% if results %}
+<ul class="results">
+  {% for r in results %}
+  <li><button type="button" hx-post="/plants" hx-vals='{{ {"type_id": r.type_id, "name": r.name}|tojson }}' hx-target="#grid-wrap">{{ r.name }}</button></li>
+  {% endfor %}
+</ul>
+{% elif q %}
+<p>No plants found.</p>
+{% else %}
+<p class="hint">Start typing to search.</p>
+{% endif %}

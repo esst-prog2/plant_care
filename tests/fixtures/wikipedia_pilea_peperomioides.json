@@ -1,0 +1,49 @@
+{
+  "type": "standard",
+  "title": "Pilea peperomioides",
+  "displaytitle": "<i>Pilea peperomioides</i>",
+  "namespace": {
+    "id": 0,
+    "text": ""
+  },
+  "wikibase_item": "Q311696",
+  "titles": {
+    "canonical": "Pilea_peperomioides",
+    "normalized": "Pilea peperomioides",
+    "display": "<i>Pilea peperomioides</i>"
+  },
+  "pageid": 13153011,
+  "thumbnail": {
+    "source": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6d/Pilea_peperomioides_Chinese_money_plant.jpg/330px-Pilea_peperomioides_Chinese_money_plant.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "width": 330,
+    "height": 440
+  },
+  "originalimage": {
+    "source": "https://upload.wikimedia.org/wikipedia/commons/6/6d/Pilea_peperomioides_Chinese_money_plant.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled",
+    "width": 2946,
+    "height": 3928
+  },
+  "lang": "en",
+  "dir": "ltr",
+  "revision": "1357712705",
+  "tid": "7ecdf074-5fde-11f1-92fb-c9e048ebc707",
+  "timestamp": "2026-06-04T06:27:44Z",
+  "description": "Species of plant",
+  "description_source": "local",
+  "content_urls": {
+    "desktop": {
+      "page": "https://en.wikipedia.org/wiki/Pilea_peperomioides",
+      "revisions": "https://en.wikipedia.org/wiki/Pilea_peperomioides?action=history",
+      "edit": "https://en.wikipedia.org/wiki/Pilea_peperomioides?action=edit",
+      "talk": "https://en.wikipedia.org/wiki/Talk:Pilea_peperomioides"
+    },
+    "mobile": {
+      "page": "https://en.wikipedia.org/wiki/Pilea_peperomioides",
+      "revisions": "https://en.wikipedia.org/wiki/Special:History/Pilea_peperomioides",
+      "edit": "https://en.wikipedia.org/wiki/Pilea_peperomioides?action=edit",
+      "talk": "https://en.wikipedia.org/wiki/Talk:Pilea_peperomioides"
+    }
+  },
+  "extract": "Pilea peperomioides, the Chinese money plant, UFO plant, pancake plant, lefse plant or missionary plant, is a species of flowering plant in the nettle family Urticaceae, native to Yunnan and Sichuan provinces in southern China.",
+  "extract_html": "<p><i><b>Pilea peperomioides</b></i>, the <b>Chinese money plant</b>, <b>UFO plant</b>, <b>pancake plant, lefse plant</b> or <b>missionary plant</b>, is a species of flowering plant in the nettle family Urticaceae, native to Yunnan and Sichuan provinces in southern China.</p>"
+}

@@ -1,0 +1,13 @@
+<article class="card {{ card.status }}" id="card-{{ card.plant.id }}"
+  {% if card.loading %}
+  hx-get="/plants/{{ card.plant.id }}/card" hx-trigger="every 1s" hx-swap="outerHTML"
+  {% else %}
+  hx-get="/plants/{{ card.plant.id }}" hx-target="#modal" hx-trigger="click, keyup[key=='Enter']" tabindex="0" role="button"
+  {% endif %}>
+  <img src="{{ card.plant.photo or '/static/placeholder.svg' }}" alt="">
+  <div class="card-body">
+    <h3>{{ card.plant.name }}</h3>
+    <span class="badge {{ card.status }}">{{ card.label }}</span>
+    {% if card.plant.data_source == 'local-fallback' %}<small class="offline">offline data</small>{% endif %}
+  </div>
+</article>
