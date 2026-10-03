@@ -12,7 +12,7 @@ on screen: Cards displayed in a grid view with the added plants, new ones can be
 First useful version:
 - 3×2 grid layout with plant cards
 - ability to add new plants and remove old ones
-- automatic fetching of the plant photo and a short description from Wikipedia; light requirements and watering schedule come from a built-in list of common houseplants
+- automatic fetching of the plant photo and a short description from Wikipedia; light requirements and an estimated watering interval come from a built-in list of common houseplants (general-knowledge estimates, not verified against a horticultural source — see "Where the plant data comes from")
 - days-left countdown timer for watering with a "Watered" action button to reset the clock
 - Google Calendar reminders: each plant gets two all-day to-dos for its next waterings, and ticking one off on the phone restarts the countdown from that day
 
@@ -24,7 +24,7 @@ Not this term:
 ## 4. How we would know it works
 - Correctly finds the plant type entered into the search bar, allowing me to select it and add it to my list.
 - The Google Calendar reminders appear on the phone, ticking one off there restarts the counter from that day, and clicking the buttons in the app correctly resets the counter.
-- Clicking on the plant's card displays its detailed care instructions.
+- Clicking on the plant's card displays its light requirements and watering interval.
 
 ## 5. What could stop this
 
@@ -63,6 +63,8 @@ Never commit `.env`; it is ignored by git.
 
 The light and watering values come from the built-in list in `data/plants.json` (about 40 common houseplants). They are general-knowledge approximations, so correct them there if a plant needs something different; the list is a plain file and easy to extend. The photo and the short description are fetched from Wikipedia when a plant is added and stored with it, so they work offline afterwards. Without internet a placeholder illustration is shown and the plant says that offline data was used. The details view links to the Wikipedia article as the credit; Wikipedia's images and text have their own licences.
 
+These watering intervals are not verified against a horticultural source. A spike checked 12 of the 41 plants directly against the RHS (Royal Horticultural Society): none of the 12 RHS pages state a watering interval as a number of days — they all tie watering to the state of the compost ("once the top 5cm feels dry") or to the season, never to a day count, and Kew's public plant pages carry no care guidance at all. So the app's day numbers are a rough default to check the plant by eye against, not a cited schedule; see `hw4-spike-evidence.md` for the 12 lookups and their URLs.
+
 ### Google reminders
 
 Each plant gets two all-day to-dos ("Water Monstera") in a Google Tasks list called `plant_care`, one for its next watering and one for the one after. They show up in the Google Calendar app on your phone, where you can tick them off. When the app next syncs, a to-do you ticked off counts as a watering on the day you ticked it, so the countdown counts from then and not from when the computer was switched on, and the two to-dos move on accordingly. Pressing "Watered" in the app does the same in the other direction. The app syncs when it starts, every `SYNC_INTERVAL_MINUTES` minutes while it runs, and after a plant is added, watered or removed. To sync by hand: `python sync_tasks.py`.
@@ -94,3 +96,4 @@ python -m pytest
 Ideas that were left out of the first version on purpose, to be planned as separate changes later (in addition to the items under "Not this term" above):
 - Own notes for each plant: a free-text note in the plant's details view.
 - Own photo upload for each plant, which would take priority over the Wikipedia photo.
+- Condition-based correction of the watering interval, instead of a fixed number of days per species: a couple of questions at add time (light level, pot/soil) to adjust the starting estimate, and button feedback after watering (soil was still wet / leaf was drooping / right on time) to nudge it over time. This follows directly from the spike (`hw4-spike-evidence.md`): no citable source gives a fixed day count either, so the honest fix is to make the estimate adjustable from what the user actually observes, not to chase a better single number.
