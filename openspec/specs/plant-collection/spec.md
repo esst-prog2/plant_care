@@ -78,8 +78,8 @@ The system SHALL keep the user's plants and their watering state when the applic
 - **WHEN** the user adds two plants, closes the application and opens it again
 - **THEN** the same two plants appear with the same remaining days until watering, adjusted for the time that has passed
 
-### Requirement: Card click shows detailed care instructions
-The system SHALL show a plant's detailed care instructions, including its light requirements and watering schedule, when the user clicks the plant's card. The same view SHALL offer the "Watered" action for that plant.
+### Requirement: Card click shows detailed plant information
+The system SHALL show a plant's light requirements and watering interval, as a starting-point estimate rather than a verified schedule, when the user clicks the plant's card. The same view SHALL offer the "Watered" action for that plant.
 
 #### Scenario: Open plant details
 - **WHEN** the user clicks a plant's card

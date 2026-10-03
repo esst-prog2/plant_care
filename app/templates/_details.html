@@ -10,7 +10,7 @@
     <dl>
       <dt>Light</dt>
       <dd>{{ card.plant.light or 'Not available' }}</dd>
-      <dt>Watering</dt>
+      <dt>Watering (estimate)</dt>
       <dd>Every {{ card.plant.interval_days }} day{{ '' if card.plant.interval_days == 1 else 's' }}</dd>
     </dl>
     {% if card.plant.about %}
