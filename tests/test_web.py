@@ -183,6 +183,12 @@ def test_details_of_unknown_plant_is_404(client):
     assert client.get("/plants/999").status_code == 404
 
 
+def test_watering_interval_is_labelled_as_an_estimate(client, db):
+    add_ready(db, "Monstera", interval=7)
+    html = client.get("/plants/1").text
+    assert "Watering (estimate)" in html
+
+
 # --- watering status and action ------------------------------------------------------
 
 
