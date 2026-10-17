@@ -1,0 +1,17 @@
+<div class="overlay" role="dialog" aria-modal="true" aria-label="Watered">
+  <div class="dialog">
+    <button type="button" class="close" aria-label="Close" onclick="this.closest('.overlay').remove()">&times;</button>
+    <h2>Watered!</h2>
+    <p class="notice ok">Next watering in {{ days }} day{{ '' if days == 1 else 's' }}.</p>
+    {% if feedback_done %}
+    <p class="hint">Thanks — noted for next time.</p>
+    {% else %}
+    <p class="hint">How did it go?</p>
+    <div class="feedback">
+      <button type="button" hx-post="/plants/{{ plant_id }}/feedback" hx-vals='{"choice": "wet"}' hx-target="#modal">Soil was still wet</button>
+      <button type="button" hx-post="/plants/{{ plant_id }}/feedback" hx-vals='{"choice": "drooping"}' hx-target="#modal">Leaf was drooping</button>
+      <button type="button" hx-post="/plants/{{ plant_id }}/feedback" hx-vals='{"choice": "on_time"}' hx-target="#modal">Right on time</button>
+    </div>
+    {% endif %}
+  </div>
+</div>

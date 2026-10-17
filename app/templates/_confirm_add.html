@@ -1,0 +1,32 @@
+<div class="overlay" role="dialog" aria-modal="true" aria-label="Add {{ name }}">
+  <div class="dialog">
+    <button type="button" class="close" aria-label="Close" onclick="this.closest('.overlay').remove()">&times;</button>
+    <h2>Add {{ name }}</h2>
+    <p class="hint">Optional: tell us about this plant's spot to fine-tune its starting watering estimate.</p>
+    <form hx-post="/plants" hx-target="#grid-wrap">
+      <input type="hidden" name="type_id" value="{{ type_id }}">
+      <input type="hidden" name="name" value="{{ name }}">
+      <fieldset>
+        <legend>Light</legend>
+        <label><input type="radio" name="light_delta" value="2"> Low light</label>
+        <label><input type="radio" name="light_delta" value="0" checked> About right</label>
+        <label><input type="radio" name="light_delta" value="-2"> Bright / direct light</label>
+      </fieldset>
+      <fieldset>
+        <legend>Warmth</legend>
+        <label><input type="radio" name="warmth_delta" value="1"> Cooler than average</label>
+        <label><input type="radio" name="warmth_delta" value="0" checked> About average</label>
+        <label><input type="radio" name="warmth_delta" value="-1"> Warmer (e.g. near a radiator)</label>
+      </fieldset>
+      <fieldset>
+        <legend>Pot / soil</legend>
+        <label><input type="radio" name="pot_delta" value="-1"> Terracotta or unglazed clay</label>
+        <label><input type="radio" name="pot_delta" value="0" checked> Not sure / other</label>
+        <label><input type="radio" name="pot_delta" value="1"> Plastic or glazed ceramic</label>
+      </fieldset>
+      <div class="actions">
+        <button type="submit" class="primary">Add plant</button>
+      </div>
+    </form>
+  </div>
+</div>

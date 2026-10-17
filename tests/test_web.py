@@ -2,6 +2,8 @@ import re
 from datetime import timedelta
 from pathlib import Path
 
+import pytest
+
 from app.main import create_app
 from tests.conftest import TODAY, add_ready
 
@@ -321,3 +323,83 @@ def test_only_the_data_access_module_opens_the_database():
     assert offenders == []
     root_scripts = [p for p in app_dir.parent.glob("*.py") if "sqlite3" in p.read_text(encoding="utf-8")]
     assert root_scripts == []
+
+
+# --- condition questions at add time (add-watering-feedback) --------------------------
+
+
+def test_selecting_a_result_opens_a_confirmation_step_before_adding(client, db):
+    html = client.get(
+        "/plants/confirm", params={"type_id": "local:monstera", "name": "Monstera"}
+    ).text
+    assert "Add Monstera" in html and "Light" in html and "Pot / soil" in html
+    assert db.count_plants() == 0
+
+
+def test_confirming_with_no_answers_uses_the_bundled_default(client, db):
+    client.post("/plants", data={"type_id": "local:monstera", "name": "Monstera"})
+    assert db.list_plants()[0].interval_days == 7
+
+
+def test_confirming_with_answers_adjusts_the_starting_interval(client, db):
+    client.post(
+        "/plants",
+        data={
+            "type_id": "local:monstera",
+            "name": "Monstera",
+            "light_delta": -2,
+            "pot_delta": -1,
+        },
+    )
+    plant = db.list_plants()[0]
+    assert plant.interval_days == 4  # 7 - 2 (bright light) - 1 (clay pot)
+    assert "Every 4 days" in client.get(f"/plants/{plant.id}").text
+
+
+# --- post-watering feedback (add-watering-feedback) -------------------------------------
+
+
+def test_feedback_buttons_appear_only_right_after_watering(client, db):
+    add_ready(db, "Pilea", 7, TODAY - timedelta(days=7))
+    assert "Soil was still wet" not in client.get("/plants/1").text
+    response = client.post("/plants/1/watered")
+    assert "Soil was still wet" in response.text
+    assert "Leaf was drooping" in response.text
+    assert "Right on time" in response.text
+
+
+@pytest.mark.parametrize(
+    "choice, expected",
+    [("wet", 8), ("drooping", 6), ("on_time", 7), (None, 7)],
+)
+def test_feedback_choice_adjusts_the_interval(client, db, choice, expected):
+    add_ready(db, "Pilea", 7, TODAY - timedelta(days=7))
+    client.post("/plants/1/watered")
+    data = {"choice": choice} if choice else {}
+    response = client.post("/plants/1/feedback", data=data)
+    assert "Soil was still wet" not in response.text
+    assert "Thanks" in response.text
+    assert db.get_plant(1).interval_days == expected
+
+
+def test_feedback_persists_after_a_restart(client, db, make_client):
+    add_ready(db, "Pilea", 7, TODAY - timedelta(days=7))
+    client.post("/plants/1/watered")
+    client.post("/plants/1/feedback", data={"choice": "wet"})
+    assert db.get_plant(1).interval_days == 8
+    assert "Every 8 days" in make_client().get("/plants/1").text
+
+
+def test_dismissing_the_feedback_step_leaves_the_interval_unchanged(client, db):
+    plant = add_ready(db, "Pilea", 7, TODAY - timedelta(days=7))
+    client.post(f"/plants/{plant.id}/watered")
+    # dismissing is just closing the dialog client-side; no request is ever sent
+    assert db.get_plant(plant.id).interval_days == 7
+
+
+def test_a_plant_from_before_this_change_is_unaffected_until_its_first_feedback(client, db):
+    plant = add_ready(db, "OldPlant", 7, TODAY - timedelta(days=7))  # as complete_plant always worked
+    client.post(f"/plants/{plant.id}/watered")
+    assert db.get_plant(plant.id).interval_days == 7
+    client.post(f"/plants/{plant.id}/feedback", data={"choice": "drooping"})
+    assert db.get_plant(plant.id).interval_days == 6

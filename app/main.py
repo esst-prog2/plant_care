@@ -11,7 +11,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from .care import DUE, OK, OVERDUE, paginate, plant_days_left, status_of
+from .care import DUE, OK, OVERDUE, adjust_for_feedback, paginate, plant_days_left, starting_interval, status_of
 from .config import Config, build_tasks_client, load_config
 from .db import FAILED, READY, Database, Plant
 from .photos import store_photo
@@ -112,13 +112,13 @@ def create_app(
         cards = [card_view(p, today) for p in plants[pg.start : pg.end]]
         return render(request, "_grid.html", headers, cards=cards, page=pg, total=len(plants))
 
-    def details(request: Request, plant: Plant, headers: dict | None = None, watered=False):
+    def details(request: Request, plant: Plant, headers: dict | None = None):
+        return render(request, "_details.html", headers, card=card_view(plant, clock()))
+
+    def watered_popup(request: Request, plant: Plant, headers: dict | None = None, feedback_done=False):
+        days = card_view(plant, clock())["days"]
         return render(
-            request,
-            "_details.html",
-            headers,
-            card=card_view(plant, clock()),
-            watered=watered,
+            request, "_watered.html", headers, plant_id=plant.id, days=days, feedback_done=feedback_done
         )
 
     def ready_plant(plant_id: int) -> Plant:
@@ -127,16 +127,25 @@ def create_app(
             raise HTTPException(status_code=404, detail="Plant not found")
         return plant
 
-    def load_plant_data(plant_id: int, type_id: str, name: str) -> None:
+    def load_plant_data(
+        plant_id: int,
+        type_id: str,
+        name: str,
+        light_delta: int = 0,
+        warmth_delta: int = 0,
+        pot_delta: int = 0,
+    ) -> None:
         try:
             result = service.get(type_id, name)
             photo = store_photo(result.image_url, config.photos_dir, plant_id)
             source = SOURCE_FALLBACK if result.image_url and photo is None else result.source
+            bundled_interval = result.care.interval_days or DEFAULT_INTERVAL_DAYS
+            interval = starting_interval(bundled_interval, light_delta, warmth_delta, pot_delta)
             db.complete_plant(
                 plant_id,
                 photo,
                 result.care.light,
-                result.care.interval_days or DEFAULT_INTERVAL_DAYS,
+                interval,
                 source,
                 about=result.about,
                 photo_credit=result.credit_url,
@@ -169,18 +178,27 @@ def create_app(
     def search(request: Request, q: str = ""):
         return render(request, "_results.html", results=service.search(q), q=q.strip())
 
+    @app.get("/plants/confirm", response_class=HTMLResponse)
+    def confirm_add(request: Request, type_id: str, name: str):
+        return render(request, "_confirm_add.html", type_id=type_id, name=name)
+
     @app.post("/plants", response_class=HTMLResponse)
     def add_plant(
         request: Request,
         background_tasks: BackgroundTasks,
         type_id: str = Form(...),
         name: str = Form(...),
+        light_delta: int = Form(0),
+        warmth_delta: int = Form(0),
+        pot_delta: int = Form(0),
     ):
         name = name.strip()
         if not type_id.strip() or not name:
             raise HTTPException(status_code=400, detail="A plant type is required")
         plant = db.add_plant(type_id.strip(), name, clock())
-        background_tasks.add_task(load_plant_data, plant.id, plant.type_id, plant.name)
+        background_tasks.add_task(
+            load_plant_data, plant.id, plant.type_id, plant.name, light_delta, warmth_delta, pot_delta
+        )
         return grid(request, page=10**9, headers={"HX-Trigger": "closeModal"})
 
     @app.get("/plants/{plant_id}/card", response_class=HTMLResponse)
@@ -203,8 +221,23 @@ def create_app(
         db.mark_watered(plant.id, clock())
         if syncer:
             background_tasks.add_task(syncer.run)
-        return details(
-            request, db.get_plant(plant_id), headers={"HX-Trigger": "refreshGrid"}, watered=True
+        return watered_popup(
+            request, db.get_plant(plant_id), headers={"HX-Trigger": "refreshGrid"}
+        )
+
+    @app.post("/plants/{plant_id}/feedback", response_class=HTMLResponse)
+    def feedback(
+        request: Request,
+        plant_id: int,
+        background_tasks: BackgroundTasks,
+        choice: str | None = Form(None),
+    ):
+        plant = ready_plant(plant_id)
+        db.update_interval(plant.id, adjust_for_feedback(plant.interval_days, choice))
+        if syncer:
+            background_tasks.add_task(syncer.run)
+        return watered_popup(
+            request, db.get_plant(plant_id), headers={"HX-Trigger": "refreshGrid"}, feedback_done=True
         )
 
     @app.get("/plants/{plant_id}/confirm-remove", response_class=HTMLResponse)
