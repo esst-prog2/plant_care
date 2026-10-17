@@ -75,8 +75,6 @@ def _parse_completed(value: str | None) -> datetime | None:
 def _to_task(raw: dict) -> RemoteTask:
     plant_id, recorded = parse_notes(raw.get("notes"))
     completed = _parse_completed(raw.get("completed"))
-    if raw.get("status") == "completed" and completed is None:
-        completed = datetime.now(timezone.utc)
     return RemoteTask(
         id=str(raw["id"]),
         plant_id=plant_id,

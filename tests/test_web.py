@@ -321,3 +321,23 @@ def test_only_the_data_access_module_opens_the_database():
     assert offenders == []
     root_scripts = [p for p in app_dir.parent.glob("*.py") if "sqlite3" in p.read_text(encoding="utf-8")]
     assert root_scripts == []
+
+
+def test_an_unexpected_error_while_loading_a_plant_is_logged_and_fails_gracefully(
+    make_client, config, caplog
+):
+    import logging
+
+    class BrokenService:
+        def search(self, q):
+            return []
+
+        def get(self, type_id, name):
+            raise RuntimeError("boom")
+
+    client = make_client(BrokenService())
+    with caplog.at_level(logging.ERROR, logger="plant_care"):
+        client.post("/plants", data={"type_id": "local:monstera", "name": "Monstera"})
+        message = client.get("/plants/1/card").text
+    assert "could not be loaded" in message and "Monstera" in message
+    assert "boom" in caplog.text

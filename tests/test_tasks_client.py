@@ -113,3 +113,19 @@ def test_request_logging_of_urls_is_switched_off():
     import app.tasks_client  # noqa: F401  (importing it configures the logger)
 
     assert logging.getLogger("httpx").level >= logging.WARNING
+
+
+def test_a_completed_status_without_a_timestamp_is_treated_as_still_open():
+    # If Google ever reports status "completed" before the completion timestamp is
+    # populated (a timing quirk, not something the public API contract promises),
+    # we must not guess "now": that could record a later watering date than the real
+    # one. Safer to treat it as not-yet-completed and pick up the real date on a
+    # later sync, once Google actually provides it.
+    def handler(request):
+        return _ok(
+            {"tasks": [{"id": "a", "title": "Water Pilea", "notes": "plant_care:3",
+                        "due": "2026-09-17T00:00:00.000Z", "status": "completed", "completed": None}]}
+        )
+
+    [task] = _client(handler).list_tasks()
+    assert task.is_completed is False and task.completed is None
