@@ -49,3 +49,11 @@ class CareDataService:
             return CareResult(care, None, None, None, SOURCE_FALLBACK)
         source = SOURCE_ONLINE if info.image_url or info.about else SOURCE_LOCAL
         return CareResult(care, info.image_url, info.about, info.page_url, source)
+
+
+def resolve_source(source: str, image_url: str | None, photo: str | None) -> str:
+    """The online lookup can succeed while the photo download fails afterwards; this
+    is the one place that combines both outcomes into the final source label."""
+    if image_url and photo is None:
+        return SOURCE_FALLBACK
+    return source
