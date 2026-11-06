@@ -29,6 +29,10 @@ class Plant:
     synced_watered: date | None
     about: str | None
     photo_credit: str | None
+    toxicity: str | None
+    humidity: str | None
+    propagation: str | None
+    photo_is_custom: bool
 
 
 _SCHEMA = """
@@ -55,6 +59,10 @@ _MIGRATIONS = {
     "synced_watered": "ALTER TABLE plants ADD COLUMN synced_watered TEXT",
     "about": "ALTER TABLE plants ADD COLUMN about TEXT",
     "photo_credit": "ALTER TABLE plants ADD COLUMN photo_credit TEXT",
+    "toxicity": "ALTER TABLE plants ADD COLUMN toxicity TEXT",
+    "humidity": "ALTER TABLE plants ADD COLUMN humidity TEXT",
+    "propagation": "ALTER TABLE plants ADD COLUMN propagation TEXT",
+    "photo_is_custom": "ALTER TABLE plants ADD COLUMN photo_is_custom INTEGER",
 }
 
 
@@ -75,6 +83,10 @@ def _to_plant(row: sqlite3.Row) -> Plant:
         synced_watered=date.fromisoformat(synced) if synced else None,
         about=row["about"],
         photo_credit=row["photo_credit"],
+        toxicity=row["toxicity"],
+        humidity=row["humidity"],
+        propagation=row["propagation"],
+        photo_is_custom=bool(row["photo_is_custom"]),
     )
 
 
@@ -114,12 +126,19 @@ class Database:
         data_source: str,
         about: str | None = None,
         photo_credit: str | None = None,
+        toxicity: str | None = None,
+        humidity: str | None = None,
+        propagation: str | None = None,
     ) -> None:
         with closing(self._connect()) as conn, conn:
             conn.execute(
                 "UPDATE plants SET photo=?, light=?, interval_days=?, data_source=?,"
-                " data_status=?, about=?, photo_credit=?, sync_pending=1 WHERE id=?",
-                (photo, light, interval_days, data_source, READY, about, photo_credit, plant_id),
+                " data_status=?, about=?, photo_credit=?, toxicity=?, humidity=?,"
+                " propagation=?, sync_pending=1 WHERE id=?",
+                (
+                    photo, light, interval_days, data_source, READY, about, photo_credit,
+                    toxicity, humidity, propagation, plant_id,
+                ),
             )
 
     def fail_plant(self, plant_id: int) -> None:
@@ -147,6 +166,13 @@ class Database:
     def delete_plant(self, plant_id: int) -> None:
         with closing(self._connect()) as conn, conn:
             conn.execute("DELETE FROM plants WHERE id=?", (plant_id,))
+
+    def set_custom_photo(self, plant_id: int, photo: str) -> None:
+        """A user-uploaded photo, which replaces whatever photo was shown before."""
+        with closing(self._connect()) as conn, conn:
+            conn.execute(
+                "UPDATE plants SET photo=?, photo_is_custom=1 WHERE id=?", (photo, plant_id)
+            )
 
     def mark_watered(self, plant_id: int, today: date) -> None:
         """A watering recorded in the app."""

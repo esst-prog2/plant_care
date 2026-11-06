@@ -2,6 +2,15 @@
   <div class="dialog">
     <button type="button" class="close" aria-label="Close" onclick="this.closest('.overlay').remove()">&times;</button>
     <img class="hero" src="{{ card.plant.photo or '/static/placeholder.svg' }}" alt="">
+    <form class="photo-upload" hx-post="/plants/{{ card.plant.id }}/photo" hx-target="#modal" hx-encoding="multipart/form-data">
+      <label>Upload your own photo:
+        <input type="file" name="photo" accept="image/jpeg,image/png,image/webp,image/gif" required>
+      </label>
+      <button type="submit">Upload</button>
+    </form>
+    {% if photo_error %}
+    <p class="notice">{{ photo_error }}</p>
+    {% endif %}
     <h2>{{ card.plant.name }}</h2>
     <p><span class="badge {{ card.status }}">{{ card.label }}</span></p>
     <dl>
@@ -9,11 +18,20 @@
       <dd>{{ card.plant.light or 'Not available' }}</dd>
       <dt>Watering (estimate)</dt>
       <dd>Every {{ card.plant.interval_days }} day{{ '' if card.plant.interval_days == 1 else 's' }}</dd>
+      <dt>Toxicity</dt>
+      <dd>{{ card.plant.toxicity or 'Not available' }}</dd>
+      <dt>Humidity (estimate)</dt>
+      <dd>{{ card.plant.humidity or 'Not available' }}</dd>
+      <dt>Propagation (estimate)</dt>
+      <dd>{{ card.plant.propagation or 'Not available' }}</dd>
     </dl>
     {% if card.plant.about %}
     <p class="about">{{ card.plant.about }}</p>
     {% if card.plant.photo_credit %}
-    <p class="credit">Photo and text: <a href="{{ card.plant.photo_credit }}" target="_blank" rel="noopener">Wikipedia</a></p>
+    <p class="credit">
+      {% if card.plant.photo_is_custom %}Text:{% else %}Photo and text:{% endif %}
+      <a href="{{ card.plant.photo_credit }}" target="_blank" rel="noopener">Wikipedia</a>
+    </p>
     {% endif %}
     {% endif %}
     {% if card.plant.data_source == 'local-fallback' %}

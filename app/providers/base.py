@@ -11,6 +11,9 @@ class PlantType:
     light: str | None = None
     interval_days: int | None = None
     wiki_title: str | None = None
+    toxicity: str | None = None
+    humidity: str | None = None
+    propagation: str | None = None
 
 
 @dataclass(frozen=True)

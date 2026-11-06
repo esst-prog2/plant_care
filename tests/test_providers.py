@@ -55,6 +55,11 @@ def test_selected_plant_has_light_and_interval(local):
     assert monstera.light and monstera.interval_days > 0 and monstera.wiki_title == "Monstera_deliciosa"
 
 
+def test_selected_plant_has_toxicity_humidity_and_propagation(local):
+    monstera = local.get("local:monstera")
+    assert monstera.toxicity and monstera.humidity and monstera.propagation
+
+
 # --- Wikipedia, using the recorded real responses --------------------------------------
 
 
