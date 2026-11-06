@@ -19,6 +19,9 @@ class LocalProvider:
                 light=item.get("light"),
                 interval_days=item["watering_days"],
                 wiki_title=item.get("wikipedia"),
+                toxicity=item.get("toxicity"),
+                humidity=item.get("humidity"),
+                propagation=item.get("propagation"),
             )
             for item in raw
         ]

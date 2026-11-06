@@ -9,6 +9,12 @@
       <dd>{{ card.plant.light or 'Not available' }}</dd>
       <dt>Watering (estimate)</dt>
       <dd>Every {{ card.plant.interval_days }} day{{ '' if card.plant.interval_days == 1 else 's' }}</dd>
+      <dt>Toxicity</dt>
+      <dd>{{ card.plant.toxicity or 'Not available' }}</dd>
+      <dt>Humidity (estimate)</dt>
+      <dd>{{ card.plant.humidity or 'Not available' }}</dd>
+      <dt>Propagation (estimate)</dt>
+      <dd>{{ card.plant.propagation or 'Not available' }}</dd>
     </dl>
     {% if card.plant.about %}
     <p class="about">{{ card.plant.about }}</p>

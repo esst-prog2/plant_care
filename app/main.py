@@ -147,6 +147,9 @@ def create_app(
                 source,
                 about=result.about,
                 photo_credit=result.credit_url,
+                toxicity=result.care.toxicity,
+                humidity=result.care.humidity,
+                propagation=result.care.propagation,
             )
             if syncer:
                 syncer.run()
