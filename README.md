@@ -1,7 +1,7 @@
 # plant_care
 
 ## 1. The demo
-I open the plant_care homepage. The homepage appears on the screen with a 3×2 card grid. I click the "+ Add New Plant" button in the top left, type "Monstera" into the search bar, and select it from the list. The card loads: an API call running in the background fetches the photo of the plant and its key information (watering, light requirements, etc.). I click the red "Watering: Due today!" badge glowing on the Pilea card, then press the "Watered" button in the pop-up window. The status turns green, the countdown jumps to 7 days, and on my phone the plant's Google Calendar reminder moves ahead to the next watering date.
+I open the plant_care homepage. The homepage appears on the screen with a 3×2 card grid. I click the "+ Add New Plant" button in the top left, type "Monstera" into the search bar, select it from the list, and answer three quick questions about its light, warmth and pot. The card loads with its photo and care details — light, watering, toxicity to pets, humidity and a propagation tip — fetched automatically from Wikipedia and the bundled plant list. I click the red "Watering: Due today!" badge glowing on the Pilea card, then press the "Watered" button in the pop-up window: the status turns green, the countdown resets to 7 days, a "How did it go?" popup asks whether the soil was still wet, and on my phone the plant's Google Calendar reminder moves ahead to the next watering date. From Monstera's details view I upload a photo of my own plant, which immediately replaces the Wikipedia photo on its card.
 
 ## 2. The shape
 in: Selecting plant types from a list, clicking a button when completing a task
