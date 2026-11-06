@@ -1,6 +1,6 @@
 import httpx
 
-from app.photos import store_photo
+from app.photos import MAX_BYTES, store_photo, store_uploaded_photo
 
 
 def _client(handler):
@@ -34,3 +34,32 @@ def test_downloaded_photo_is_still_served_when_the_network_is_gone(client, confi
     (config.photos_dir).mkdir(parents=True, exist_ok=True)
     (config.photos_dir / "3.jpg").write_bytes(b"jpegdata")
     assert client.get("/photos/3.jpg").content == b"jpegdata"
+
+
+# --- user-uploaded photos --------------------------------------------------------------
+
+
+def test_uploaded_photo_is_saved_and_served(tmp_path):
+    path = store_uploaded_photo(b"\xff\xd8jpegdata", "image/jpeg", tmp_path, 5)
+    assert path == "/photos/5.jpg"
+    assert (tmp_path / "5.jpg").read_bytes() == b"\xff\xd8jpegdata"
+
+
+def test_uploaded_photo_of_an_unsupported_type_is_rejected(tmp_path):
+    assert store_uploaded_photo(b"not an image", "text/plain", tmp_path, 5) is None
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_uploaded_photo_over_the_size_limit_is_rejected(tmp_path):
+    oversized = b"x" * (MAX_BYTES + 1)
+    assert store_uploaded_photo(oversized, "image/jpeg", tmp_path, 5) is None
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_uploading_a_different_format_removes_the_old_file(tmp_path):
+    tmp_path.mkdir(parents=True, exist_ok=True)
+    (tmp_path / "5.jpg").write_bytes(b"old jpeg")
+    path = store_uploaded_photo(b"new png data", "image/png", tmp_path, 5)
+    assert path == "/photos/5.png"
+    assert (tmp_path / "5.png").read_bytes() == b"new png data"
+    assert not (tmp_path / "5.jpg").exists()

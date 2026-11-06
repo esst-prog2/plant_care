@@ -163,6 +163,43 @@ def test_plant_added_offline_has_no_description_or_credit(client, db):
     assert 'class="about"' not in details and "Wikipedia" not in details
 
 
+def test_credit_line_says_photo_and_text_before_any_upload(make_client, config, db, monkeypatch):
+    import app.main as main
+    from app.providers.base import OnlineInfo
+    from app.providers.composite import CareDataService
+    from app.providers.local_json import LocalProvider
+    from tests.fakes import FakeOnlineSource
+
+    info = OnlineInfo("https://img.example/m.jpg", "About.", "https://en.wikipedia.org/wiki/M")
+    monkeypatch.setattr(main, "store_photo", lambda image, photos_dir, plant_id: "/photos/1.jpg")
+    client = make_client(CareDataService(LocalProvider(config.local_data_path), FakeOnlineSource(info)))
+    _add(client)
+    assert "Photo and text:" in client.get("/plants/1").text
+
+
+def test_credit_line_says_text_only_after_uploading_a_photo(make_client, config, db, monkeypatch):
+    import app.main as main
+    from app.providers.base import OnlineInfo
+    from app.providers.composite import CareDataService
+    from app.providers.local_json import LocalProvider
+    from tests.fakes import FakeOnlineSource
+
+    info = OnlineInfo("https://img.example/m.jpg", "About.", "https://en.wikipedia.org/wiki/M")
+    monkeypatch.setattr(main, "store_photo", lambda image, photos_dir, plant_id: "/photos/1.jpg")
+    client = make_client(CareDataService(LocalProvider(config.local_data_path), FakeOnlineSource(info)))
+    _add(client)
+    client.post("/plants/1/photo", files={"photo": ("mine.png", b"data", "image/png")})
+    details = client.get("/plants/1").text
+    assert "Text:" in details and "Photo and text:" not in details
+
+
+def test_credit_line_stays_absent_after_upload_when_there_was_never_a_description(client, db):
+    plant = add_ready(db, "Monstera", interval=7)
+    client.post(f"/plants/{plant.id}/photo", files={"photo": ("mine.png", b"data", "image/png")})
+    details = client.get(f"/plants/{plant.id}").text
+    assert 'class="credit"' not in details
+
+
 def test_stored_data_survives_the_internet_going_away(client, db):
     _add(client)
     plant = db.list_plants()[0]
@@ -201,6 +238,75 @@ def test_watering_interval_is_labelled_as_an_estimate(client, db):
     add_ready(db, "Monstera", interval=7)
     html = client.get("/plants/1").text
     assert "Watering (estimate)" in html
+
+
+# --- photo upload ----------------------------------------------------------------------
+
+
+def test_uploading_a_photo_replaces_the_shown_photo(client, db):
+    plant = add_ready(db, "Monstera", interval=7)
+    response = client.post(
+        f"/plants/{plant.id}/photo", files={"photo": ("mine.png", b"\x89PNGfakedata", "image/png")}
+    )
+    assert response.status_code == 200
+    assert f"/photos/{plant.id}.png" in response.text
+    assert db.get_plant(plant.id).photo_is_custom is True
+
+
+def test_reuploading_a_photo_with_the_same_extension_still_changes_the_url(client, db):
+    plant = add_ready(db, "Monstera", interval=7)
+    client.post(f"/plants/{plant.id}/photo", files={"photo": ("one.png", b"first image bytes", "image/png")})
+    first_photo = db.get_plant(plant.id).photo
+    client.post(f"/plants/{plant.id}/photo", files={"photo": ("two.png", b"second image bytes", "image/png")})
+    second_photo = db.get_plant(plant.id).photo
+    # same underlying file path both times, but the full URL (with cache-busting) must differ,
+    # or the browser keeps showing the first upload from its image cache instead of the second
+    assert first_photo.split("?")[0] == second_photo.split("?")[0] == f"/photos/{plant.id}.png"
+    assert first_photo != second_photo
+
+
+def test_uploading_a_photo_refreshes_the_card_grid(client, db):
+    plant = add_ready(db, "Monstera", interval=7)
+    response = client.post(
+        f"/plants/{plant.id}/photo", files={"photo": ("mine.png", b"\x89PNGfakedata", "image/png")}
+    )
+    assert "refreshGrid" in response.headers["HX-Trigger"]
+    assert f"/photos/{plant.id}.png" in client.get("/grid").text
+
+
+def test_uploading_an_unsupported_file_type_keeps_the_existing_photo(client, db):
+    plant = add_ready(db, "Monstera", interval=7)
+    response = client.post(
+        f"/plants/{plant.id}/photo", files={"photo": ("notes.txt", b"hello", "text/plain")}
+    )
+    assert response.status_code == 200
+    assert "That file" in response.text
+    assert "/static/placeholder.svg" in response.text
+    assert db.get_plant(plant.id).photo_is_custom is False
+
+
+def test_uploading_an_oversized_file_keeps_the_existing_photo(client, db):
+    from app.photos import MAX_BYTES
+
+    plant = add_ready(db, "Monstera", interval=7)
+    response = client.post(
+        f"/plants/{plant.id}/photo",
+        files={"photo": ("big.jpg", b"x" * (MAX_BYTES + 1), "image/jpeg")},
+    )
+    assert response.status_code == 200
+    assert "That file" in response.text
+    assert db.get_plant(plant.id).photo_is_custom is False
+
+
+def test_uploading_a_photo_for_an_unknown_plant_is_404(client):
+    response = client.post("/plants/999/photo", files={"photo": ("mine.png", b"data", "image/png")})
+    assert response.status_code == 404
+
+
+def test_uploading_a_photo_for_a_plant_still_loading_is_404(client, db):
+    plant = db.add_plant("local:monstera", "Monstera", TODAY)
+    response = client.post(f"/plants/{plant.id}/photo", files={"photo": ("mine.png", b"data", "image/png")})
+    assert response.status_code == 404
 
 
 # --- watering status and action ------------------------------------------------------

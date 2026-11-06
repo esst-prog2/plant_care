@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 import logging
+import secrets
 from contextlib import asynccontextmanager
 from datetime import date, datetime
 from pathlib import Path
 from typing import Callable
 
-from fastapi import BackgroundTasks, FastAPI, Form, HTTPException, Request
+from fastapi import BackgroundTasks, FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -14,7 +15,7 @@ from fastapi.templating import Jinja2Templates
 from .care import DUE, OK, OVERDUE, adjust_for_feedback, paginate, plant_days_left, starting_interval, status_of
 from .config import Config, build_tasks_client, load_config
 from .db import FAILED, READY, Database, Plant
-from .photos import store_photo
+from .photos import store_photo, store_uploaded_photo
 from .providers.composite import CareDataService, CareDataUnavailable, resolve_source
 from .providers.local_json import LocalProvider
 from .providers.wikipedia import WikipediaSource
@@ -111,8 +112,8 @@ def create_app(
         cards = [card_view(p, today) for p in plants[pg.start : pg.end]]
         return render(request, "_grid.html", headers, cards=cards, page=pg, total=len(plants))
 
-    def details(request: Request, plant: Plant, headers: dict | None = None):
-        return render(request, "_details.html", headers, card=card_view(plant, clock()))
+    def details(request: Request, plant: Plant, headers: dict | None = None, photo_error: str | None = None):
+        return render(request, "_details.html", headers, card=card_view(plant, clock()), photo_error=photo_error)
 
     def watered_popup(request: Request, plant: Plant, headers: dict | None = None, feedback_done=False):
         days = card_view(plant, clock())["days"]
@@ -215,6 +216,20 @@ def create_app(
     @app.get("/plants/{plant_id}", response_class=HTMLResponse)
     def plant_details(request: Request, plant_id: int):
         return details(request, ready_plant(plant_id))
+
+    @app.post("/plants/{plant_id}/photo", response_class=HTMLResponse)
+    async def upload_photo(request: Request, plant_id: int, photo: UploadFile = File(...)):
+        plant = ready_plant(plant_id)
+        content = await photo.read()
+        stored = store_uploaded_photo(content, photo.content_type or "", config.photos_dir, plant_id)
+        if stored is None:
+            return details(
+                request, plant, photo_error="That file couldn't be used as a photo (unsupported type or too large)."
+            )
+        # A re-upload can reuse the same filename (same extension as before), so a cache-busting
+        # suffix is needed or the browser keeps showing the old image from its cache.
+        db.set_custom_photo(plant_id, f"{stored}?v={secrets.token_hex(4)}")
+        return details(request, db.get_plant(plant_id), headers={"HX-Trigger": "refreshGrid"})
 
     @app.post("/plants/{plant_id}/watered", response_class=HTMLResponse)
     def watered(request: Request, plant_id: int, background_tasks: BackgroundTasks):

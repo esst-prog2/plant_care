@@ -32,6 +32,7 @@ class Plant:
     toxicity: str | None
     humidity: str | None
     propagation: str | None
+    photo_is_custom: bool
 
 
 _SCHEMA = """
@@ -61,6 +62,7 @@ _MIGRATIONS = {
     "toxicity": "ALTER TABLE plants ADD COLUMN toxicity TEXT",
     "humidity": "ALTER TABLE plants ADD COLUMN humidity TEXT",
     "propagation": "ALTER TABLE plants ADD COLUMN propagation TEXT",
+    "photo_is_custom": "ALTER TABLE plants ADD COLUMN photo_is_custom INTEGER",
 }
 
 
@@ -84,6 +86,7 @@ def _to_plant(row: sqlite3.Row) -> Plant:
         toxicity=row["toxicity"],
         humidity=row["humidity"],
         propagation=row["propagation"],
+        photo_is_custom=bool(row["photo_is_custom"]),
     )
 
 
@@ -163,6 +166,13 @@ class Database:
     def delete_plant(self, plant_id: int) -> None:
         with closing(self._connect()) as conn, conn:
             conn.execute("DELETE FROM plants WHERE id=?", (plant_id,))
+
+    def set_custom_photo(self, plant_id: int, photo: str) -> None:
+        """A user-uploaded photo, which replaces whatever photo was shown before."""
+        with closing(self._connect()) as conn, conn:
+            conn.execute(
+                "UPDATE plants SET photo=?, photo_is_custom=1 WHERE id=?", (photo, plant_id)
+            )
 
     def mark_watered(self, plant_id: int, today: date) -> None:
         """A watering recorded in the app."""

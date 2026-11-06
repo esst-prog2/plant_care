@@ -52,3 +52,19 @@ def store_photo(
     finally:
         if owns_client:
             client.close()
+
+
+def store_uploaded_photo(content: bytes, content_type: str, photos_dir: Path, plant_id: int) -> str | None:
+    """Save a user-uploaded photo, replacing any existing file for this plant.
+
+    Returns the web path, or None if the file's type or size fails validation.
+    """
+    extension = _EXTENSIONS.get((content_type or "").split(";")[0].strip())
+    if extension is None or len(content) > MAX_BYTES:
+        return None
+    photos_dir.mkdir(parents=True, exist_ok=True)
+    for other in photos_dir.glob(f"{plant_id}.*"):
+        if other.suffix != extension:
+            other.unlink()
+    (photos_dir / f"{plant_id}{extension}").write_bytes(content)
+    return f"/photos/{plant_id}{extension}"
