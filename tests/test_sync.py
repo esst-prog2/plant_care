@@ -284,3 +284,9 @@ def test_sync_command_reports_a_failure(config, db, tasks, monkeypatch, capsys):
     monkeypatch.setattr(sync_tasks, "build_tasks_client", lambda cfg: tasks)
     assert sync_tasks.main() == 1
     assert "Sync failed" in capsys.readouterr().out
+
+
+def test_a_feedback_adjusted_interval_moves_both_reminders(db, tasks, pilea):
+    db.update_interval(pilea.id, 8)  # as if "soil was still wet" had just been chosen
+    reconcile(db, tasks, D(2026, 9, 11))
+    assert tasks.dues_for(pilea.id) == [D(2026, 9, 18), D(2026, 9, 26)]

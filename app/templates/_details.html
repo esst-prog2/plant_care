@@ -4,9 +4,6 @@
     <img class="hero" src="{{ card.plant.photo or '/static/placeholder.svg' }}" alt="">
     <h2>{{ card.plant.name }}</h2>
     <p><span class="badge {{ card.status }}">{{ card.label }}</span></p>
-    {% if watered %}
-    <p class="notice ok">Watered! Next watering in {{ card.days }} day{{ '' if card.days == 1 else 's' }}.</p>
-    {% endif %}
     <dl>
       <dt>Light</dt>
       <dd>{{ card.plant.light or 'Not available' }}</dd>

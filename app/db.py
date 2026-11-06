@@ -164,6 +164,14 @@ class Database:
                 (day.isoformat(), day.isoformat(), plant_id),
             )
 
+    def update_interval(self, plant_id: int, interval_days: int) -> None:
+        """A watering-feedback adjustment, independent of the bundled default."""
+        with closing(self._connect()) as conn, conn:
+            conn.execute(
+                "UPDATE plants SET interval_days=?, sync_pending=1 WHERE id=?",
+                (interval_days, plant_id),
+            )
+
     def mark_synced(self, plant_id: int, synced_watered: date) -> None:
         with closing(self._connect()) as conn, conn:
             conn.execute(
