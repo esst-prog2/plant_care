@@ -15,8 +15,7 @@ from .care import DUE, OK, OVERDUE, adjust_for_feedback, paginate, plant_days_le
 from .config import Config, build_tasks_client, load_config
 from .db import FAILED, READY, Database, Plant
 from .photos import store_photo
-from .providers.base import DEFAULT_INTERVAL_DAYS
-from .providers.composite import SOURCE_FALLBACK, CareDataService, CareDataUnavailable
+from .providers.composite import CareDataService, CareDataUnavailable, resolve_source
 from .providers.local_json import LocalProvider
 from .providers.wikipedia import WikipediaSource
 from .sync import Syncer
@@ -138,9 +137,8 @@ def create_app(
         try:
             result = service.get(type_id, name)
             photo = store_photo(result.image_url, config.photos_dir, plant_id)
-            source = SOURCE_FALLBACK if result.image_url and photo is None else result.source
-            bundled_interval = result.care.interval_days or DEFAULT_INTERVAL_DAYS
-            interval = starting_interval(bundled_interval, light_delta, warmth_delta, pot_delta)
+            source = resolve_source(result.source, result.image_url, photo)
+            interval = starting_interval(result.care.interval_days, light_delta, warmth_delta, pot_delta)
             db.complete_plant(
                 plant_id,
                 photo,

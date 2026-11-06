@@ -183,3 +183,21 @@ def test_unknown_plant_types_are_unavailable(local):
     for type_id in ("local:does-not-exist", "external:1", "whatever"):
         with pytest.raises(CareDataUnavailable):
             service.get(type_id, "Anything")
+
+
+# --- resolve_source: the one place the lookup outcome and the download outcome combine --
+
+
+@pytest.mark.parametrize(
+    "source, image_url, photo, expected",
+    [
+        (SOURCE_ONLINE, "https://img/m.jpg", "/photos/1.jpg", SOURCE_ONLINE),  # both succeeded
+        (SOURCE_ONLINE, "https://img/m.jpg", None, SOURCE_FALLBACK),  # lookup ok, download failed
+        (SOURCE_LOCAL, None, None, SOURCE_LOCAL),  # no image was ever offered
+        (SOURCE_FALLBACK, None, None, SOURCE_FALLBACK),  # lookup itself already failed
+    ],
+)
+def test_resolve_source_combines_lookup_and_download_outcomes(source, image_url, photo, expected):
+    from app.providers.composite import resolve_source
+
+    assert resolve_source(source, image_url, photo) == expected

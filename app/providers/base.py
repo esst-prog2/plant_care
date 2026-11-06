@@ -3,8 +3,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Protocol
 
-DEFAULT_INTERVAL_DAYS = 7
-
 
 @dataclass(frozen=True)
 class PlantType:

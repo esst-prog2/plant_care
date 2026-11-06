@@ -403,3 +403,21 @@ def test_a_plant_from_before_this_change_is_unaffected_until_its_first_feedback(
     assert db.get_plant(plant.id).interval_days == 7
     client.post(f"/plants/{plant.id}/feedback", data={"choice": "drooping"})
     assert db.get_plant(plant.id).interval_days == 6
+def test_an_unexpected_error_while_loading_a_plant_is_logged_and_fails_gracefully(
+    make_client, config, caplog
+):
+    import logging
+
+    class BrokenService:
+        def search(self, q):
+            return []
+
+        def get(self, type_id, name):
+            raise RuntimeError("boom")
+
+    client = make_client(BrokenService())
+    with caplog.at_level(logging.ERROR, logger="plant_care"):
+        client.post("/plants", data={"type_id": "local:monstera", "name": "Monstera"})
+        message = client.get("/plants/1/card").text
+    assert "could not be loaded" in message and "Monstera" in message
+    assert "boom" in caplog.text
