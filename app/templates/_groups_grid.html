@@ -1,16 +1,25 @@
 {% macro plant_word(count) %}plant{{ '' if count == 1 else 's' }}{% endmacro %}
 <div class="grid">
   <article class="card group-card">
-    <a class="group-link" href="/groups/all">
-      <h3>All</h3>
-      <span class="badge">{{ all_count }} {{ plant_word(all_count) }}</span>
+    <a class="group-cover-link" href="/groups/all">
+      <img src="{{ all_cover }}" alt="">
+      <div class="card-body">
+        <h3 class="group-name">{{ all_name }}</h3>
+        <span class="badge">{{ all_count }} {{ plant_word(all_count) }}</span>
+      </div>
     </a>
+    <div class="group-actions">
+      <button type="button" hx-get="/groups/all/edit" hx-target="#modal">Rename</button>
+    </div>
   </article>
-  {% for group, count in group_counts %}
+  {% for group, count, cover in group_cards %}
   <article class="card group-card">
-    <a class="group-link" href="/groups/{{ group.id }}">
-      <h3>{{ group.name }}</h3>
-      <span class="badge">{{ count }} {{ plant_word(count) }}</span>
+    <a class="group-cover-link" href="/groups/{{ group.id }}">
+      <img src="{{ cover }}" alt="">
+      <div class="card-body">
+        <h3 class="group-name">{{ group.name }}</h3>
+        <span class="badge">{{ count }} {{ plant_word(count) }}</span>
+      </div>
     </a>
     <div class="group-actions">
       <button type="button" hx-get="/groups/{{ group.id }}/edit" hx-target="#modal">Rename</button>

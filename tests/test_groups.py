@@ -167,6 +167,19 @@ def test_moving_a_plant_to_a_different_group_later(client, db):
     assert "Monstera" in client.get(f"/groups/{b.id}").text
 
 
+def test_all_group_can_be_renamed(client, db):
+    assert "All" in client.get("/").text
+    client.post("/groups/all/rename", data={"name": "Everything"})
+    html = client.get("/").text
+    assert "Everything" in html and ">All<" not in html
+
+
+def test_all_group_rename_is_reflected_in_the_collection_view_switcher(client, db):
+    db.set_setting("all_group_name", "Everything")
+    html = client.get("/groups/all").text
+    assert "Everything" in html
+
+
 def test_unassigning_a_plant_removes_it_from_its_group(client, db):
     group = db.create_group("Living room")
     plant = add_ready(db, "Monstera", group_id=group.id)

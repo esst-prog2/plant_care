@@ -14,7 +14,7 @@ from fastapi.templating import Jinja2Templates
 
 from .care import DUE, OK, OVERDUE, adjust_for_feedback, paginate, plant_days_left, starting_interval, status_of
 from .config import Config, build_tasks_client, load_config
-from .db import FAILED, READY, Database, Plant
+from .db import ALL_GROUP_NAME_KEY, FAILED, READY, Database, Plant
 from .photos import store_photo, store_uploaded_photo
 from .providers.composite import CareDataService, CareDataUnavailable, resolve_source
 from .providers.local_json import LocalProvider
@@ -120,11 +120,22 @@ def create_app(
             request, "_grid.html", headers, cards=cards, page=pg, total=len(plants), view_group_id=view_group_id
         )
 
+    def _cover_photo(group_id: int | None) -> str:
+        plants = db.list_plants(group_id=group_id)
+        return (plants[0].photo if plants else None) or "/static/placeholder.svg"
+
     def groups_grid(request: Request, headers: dict | None = None):
         groups = db.list_groups()
-        group_counts = [(g, len(db.list_plants(group_id=g.id))) for g in groups]
+        group_cards = [(g, len(db.list_plants(group_id=g.id)), _cover_photo(g.id)) for g in groups]
+        all_plants = db.list_plants()
         return render(
-            request, "_groups_grid.html", headers, group_counts=group_counts, all_count=len(db.list_plants())
+            request,
+            "_groups_grid.html",
+            headers,
+            group_cards=group_cards,
+            all_count=len(all_plants),
+            all_name=db.get_setting(ALL_GROUP_NAME_KEY, "All"),
+            all_cover=_cover_photo(None),
         )
 
     def details(request: Request, plant: Plant, headers: dict | None = None, photo_error: str | None = None):
@@ -185,8 +196,16 @@ def create_app(
     @app.get("/", response_class=HTMLResponse)
     def landing(request: Request):
         groups = db.list_groups()
-        group_counts = [(g, len(db.list_plants(group_id=g.id))) for g in groups]
-        return render(request, "index.html", group_counts=group_counts, all_count=len(db.list_plants()))
+        group_cards = [(g, len(db.list_plants(group_id=g.id)), _cover_photo(g.id)) for g in groups]
+        all_plants = db.list_plants()
+        return render(
+            request,
+            "index.html",
+            group_cards=group_cards,
+            all_count=len(all_plants),
+            all_name=db.get_setting(ALL_GROUP_NAME_KEY, "All"),
+            all_cover=_cover_photo(None),
+        )
 
     def collection_view(request: Request, view_group_id: str, page: int = 1):
         today = clock()
@@ -203,6 +222,7 @@ def create_app(
             view_group_id=view_group_id,
             current_group_id=group_id,
             groups=db.list_groups(),
+            all_name=db.get_setting(ALL_GROUP_NAME_KEY, "All"),
         )
 
     @app.get("/groups/new", response_class=HTMLResponse)
@@ -221,6 +241,21 @@ def create_app(
         db.create_group(name)
         return groups_grid(request, headers={"HX-Trigger": "closeModal"})
 
+    @app.get("/groups/all/edit", response_class=HTMLResponse)
+    def edit_all_group(request: Request):
+        return render(
+            request, "_edit_group.html", rename_url="/groups/all/rename",
+            current_name=db.get_setting(ALL_GROUP_NAME_KEY, "All"),
+        )
+
+    @app.post("/groups/all/rename", response_class=HTMLResponse)
+    def rename_all_group(request: Request, name: str = Form(...)):
+        name = name.strip()
+        if not name:
+            raise HTTPException(status_code=400, detail="A group name is required")
+        db.set_setting(ALL_GROUP_NAME_KEY, name)
+        return groups_grid(request, headers={"HX-Trigger": "closeModal"})
+
     @app.get("/groups/{group_id}", response_class=HTMLResponse)
     def collection_group(request: Request, group_id: int, page: int = 1):
         if db.get_group(group_id) is None:
@@ -232,7 +267,9 @@ def create_app(
         group = db.get_group(group_id)
         if group is None:
             raise HTTPException(status_code=404, detail="Group not found")
-        return render(request, "_edit_group.html", group=group)
+        return render(
+            request, "_edit_group.html", rename_url=f"/groups/{group_id}/rename", current_name=group.name
+        )
 
     @app.post("/groups/{group_id}/rename", response_class=HTMLResponse)
     def rename_group(request: Request, group_id: int, name: str = Form(...)):

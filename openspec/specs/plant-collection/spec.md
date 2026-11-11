@@ -6,31 +6,31 @@ Lets the user see all of their plants at a glance on the homepage, add new plant
 
 ## Requirements
 
-### Requirement: Homepage shows plants as cards in a paged grid
-The system SHALL display the user's plants on the homepage as cards arranged in a grid of three columns by two rows, showing at most six cards per page. Each card SHALL show the plant's photo, name and watering status. When the user has more than six plants, the system SHALL provide page controls to move between pages, and SHALL show which page is current and how many pages there are.
+### Requirement: A group's collection view shows plants as cards in a paged grid
+The system SHALL display a group's plants (or every plant, for "All") as cards arranged in a grid of three columns by two rows, showing at most six cards per page. Each card SHALL show the plant's photo, name and watering status. When the scoped set has more than six plants, the system SHALL provide page controls to move between pages, and SHALL show which page is current and how many pages there are. This view is reached by opening a card on the landing page (see the plant-groups capability), not shown directly when the application opens.
 
 #### Scenario: Plants are shown as cards
-- **WHEN** the user opens the homepage and has six plants
+- **WHEN** the user opens a group (or "All") with six plants
 - **THEN** the system shows six cards in a grid of three columns by two rows, each with photo, name and watering status, and no page controls
 
 #### Scenario: Empty collection
-- **WHEN** the user opens the homepage and has no plants
+- **WHEN** the user opens a group (or "All") with no plants
 - **THEN** the system shows an empty grid with the "+ Add New Plant" button still available
 
 #### Scenario: More plants than fit on one page
-- **WHEN** the user has seven plants
+- **WHEN** the scoped set has seven plants
 - **THEN** the system shows the first six on page 1 of 2, and the seventh alone on page 2
 
 #### Scenario: Move between pages
-- **WHEN** the user has seven plants and activates the "next page" control on page 1
+- **WHEN** the scoped set has seven plants and the user activates the "next page" control on page 1
 - **THEN** the system shows page 2 with the seventh plant, and a "previous page" control returns to page 1
 
 #### Scenario: Page controls at the ends
-- **WHEN** the user is on the first page, or on the last page
+- **WHEN** the user is on the first page, or on the last page, of a scoped set
 - **THEN** the "previous page" control is unavailable on the first page and the "next page" control is unavailable on the last page
 
 #### Scenario: Adding a plant to a full last page
-- **WHEN** the user has six plants and adds a seventh
+- **WHEN** the scoped set has six plants and the user adds a seventh to that same scope
 - **THEN** the system shows page 2 of 2 containing the new plant, or otherwise keeps the user on a page that lets them reach it
 
 ### Requirement: User can add a plant by searching for its type
@@ -79,12 +79,16 @@ The system SHALL keep the user's plants and their watering state when the applic
 - **THEN** the same two plants appear with the same remaining days until watering, adjusted for the time that has passed
 
 ### Requirement: Card click shows detailed plant information
-The system SHALL show a plant's light requirements and watering interval, as a starting-point estimate rather than a verified schedule, when the user clicks the plant's card. The same view SHALL offer the "Watered" action for that plant.
+The system SHALL show a plant's light requirements, watering interval, toxicity-to-pets rating, humidity preference and propagation tip when the user clicks the plant's card. Light, watering, humidity and propagation are shown as starting-point estimates rather than a verified schedule; toxicity is shown as a rating drawn from the ASPCA's published plant list rather than a general-knowledge guess, and is not a substitute for veterinary advice. The same view SHALL offer the "Watered" action for that plant.
 
 #### Scenario: Open plant details
 - **WHEN** the user clicks a plant's card
-- **THEN** the system shows a details view with the plant's photo, name, light requirements, watering schedule and the "Watered" button
+- **THEN** the system shows a details view with the plant's photo, name, light requirements, watering schedule, toxicity-to-pets rating, humidity preference, propagation tip and the "Watered" button
 
 #### Scenario: Close plant details
 - **WHEN** the details view is open and the user closes it
 - **THEN** the system returns to the grid with no data changed
+
+#### Scenario: Plant added before toxicity, humidity and propagation existed
+- **WHEN** the user opens the details view of a plant added before these fields were introduced
+- **THEN** the system shows "Not available" for toxicity, humidity and propagation instead of an error
