@@ -124,9 +124,21 @@ def create_app(
         plants = db.list_plants(group_id=group_id)
         return (plants[0].photo if plants else None) or "/static/placeholder.svg"
 
+    def _due_count(plants: list[Plant]) -> int:
+        today = clock()
+        due = 0
+        for p in plants:
+            days = plant_days_left(p, today)
+            if days is not None and status_of(days) != OK:
+                due += 1
+        return due
+
     def groups_grid(request: Request, headers: dict | None = None):
         groups = db.list_groups()
-        group_cards = [(g, len(db.list_plants(group_id=g.id)), _cover_photo(g.id)) for g in groups]
+        group_cards = [
+            (g, len(plants := db.list_plants(group_id=g.id)), _cover_photo(g.id), _due_count(plants))
+            for g in groups
+        ]
         all_plants = db.list_plants()
         return render(
             request,
@@ -136,6 +148,7 @@ def create_app(
             all_count=len(all_plants),
             all_name=db.get_setting(ALL_GROUP_NAME_KEY, "All"),
             all_cover=_cover_photo(None),
+            all_due=_due_count(all_plants),
         )
 
     def details(request: Request, plant: Plant, headers: dict | None = None, photo_error: str | None = None):
@@ -196,7 +209,10 @@ def create_app(
     @app.get("/", response_class=HTMLResponse)
     def landing(request: Request):
         groups = db.list_groups()
-        group_cards = [(g, len(db.list_plants(group_id=g.id)), _cover_photo(g.id)) for g in groups]
+        group_cards = [
+            (g, len(plants := db.list_plants(group_id=g.id)), _cover_photo(g.id), _due_count(plants))
+            for g in groups
+        ]
         all_plants = db.list_plants()
         return render(
             request,
@@ -205,6 +221,7 @@ def create_app(
             all_count=len(all_plants),
             all_name=db.get_setting(ALL_GROUP_NAME_KEY, "All"),
             all_cover=_cover_photo(None),
+            all_due=_due_count(all_plants),
         )
 
     def collection_view(request: Request, view_group_id: str, page: int = 1):
