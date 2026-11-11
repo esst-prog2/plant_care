@@ -11,7 +11,23 @@
 * { box-sizing: border-box; }
 body { margin: 0; font-family: system-ui, "Segoe UI", sans-serif; color: var(--ink); background: var(--bg); }
 .topbar { display: flex; align-items: center; gap: 1rem; padding: 1rem 1.5rem; }
-.topbar h1 { margin: 0 0 0 auto; font-size: 1.3rem; color: var(--green); }
+.topbar h1 { margin: 0 0 0 auto; }
+.logo {
+  display: inline-flex;
+  align-items: center;
+  font-size: 1.3rem;
+  font-weight: 800;
+  letter-spacing: -.01em;
+  color: var(--green);
+  text-decoration: none;
+  border-radius: 8px;
+  padding: .2rem .3rem;
+  margin-right: -.3rem;
+}
+.logo:hover, .logo:focus-visible { background: var(--green-bg); }
+.logo .care { font-weight: 400; color: var(--muted); }
+.logo .leaf { display: inline-block; width: .85em; text-align: center; }
+.logo .leaf svg { width: 1em; height: 1em; vertical-align: -.16em; }
 main { max-width: 1500px; margin: 0 auto; padding: 0 1.5rem 1.5rem; }
 button { font: inherit; padding: .5rem 1rem; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); cursor: pointer; }
 button:disabled { opacity: .45; cursor: default; }

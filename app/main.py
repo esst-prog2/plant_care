@@ -101,6 +101,9 @@ def create_app(
     app.mount("/static", StaticFiles(directory=APP_DIR / "static"), name="static")
     app.mount("/photos", StaticFiles(directory=config.photos_dir), name="photos")
     templates = Jinja2Templates(directory=APP_DIR / "templates")
+    # Cache-busts /static/style.css so a browser that cached an older version (e.g. from
+    # before a restart) always picks up the current one instead of a stale copy.
+    templates.env.globals["asset_version"] = int((APP_DIR / "static" / "style.css").stat().st_mtime)
 
     def render(request: Request, template: str, headers: dict | None = None, **context):
         return templates.TemplateResponse(request, template, context, headers=headers)
