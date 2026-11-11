@@ -6,9 +6,9 @@
       <div class="card-body">
         <h3 class="group-name">
           {{ all_name }}
+          <span class="badge count">{{ all_count }} {{ plant_word(all_count) }}</span>
           {% if all_due > 0 %}<span class="badge due">{{ all_due }} due</span>{% endif %}
         </h3>
-        <span class="badge">{{ all_count }} {{ plant_word(all_count) }}</span>
       </div>
     </a>
     <div class="group-actions">
@@ -22,9 +22,9 @@
       <div class="card-body">
         <h3 class="group-name">
           {{ group.name }}
+          <span class="badge count">{{ count }} {{ plant_word(count) }}</span>
           {% if due_count > 0 %}<span class="badge due">{{ due_count }} due</span>{% endif %}
         </h3>
-        <span class="badge">{{ count }} {{ plant_word(count) }}</span>
       </div>
     </a>
     <div class="group-actions">
