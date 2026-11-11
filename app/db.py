@@ -63,7 +63,13 @@ CREATE TABLE IF NOT EXISTS groups (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS settings (
+    key TEXT PRIMARY KEY,
+    value TEXT NOT NULL
+);
 """
+
+ALL_GROUP_NAME_KEY = "all_group_name"
 
 _MIGRATIONS = {
     "sync_pending": "ALTER TABLE plants ADD COLUMN sync_pending INTEGER NOT NULL DEFAULT 1",
@@ -219,6 +225,19 @@ class Database:
     def set_plant_group(self, plant_id: int, group_id: int | None) -> None:
         with closing(self._connect()) as conn, conn:
             conn.execute("UPDATE plants SET group_id=? WHERE id=?", (group_id, plant_id))
+
+    def get_setting(self, key: str, default: str | None = None) -> str | None:
+        with closing(self._connect()) as conn:
+            row = conn.execute("SELECT value FROM settings WHERE key=?", (key,)).fetchone()
+        return row["value"] if row else default
+
+    def set_setting(self, key: str, value: str) -> None:
+        with closing(self._connect()) as conn, conn:
+            conn.execute(
+                "INSERT INTO settings (key, value) VALUES (?, ?)"
+                " ON CONFLICT(key) DO UPDATE SET value=excluded.value",
+                (key, value),
+            )
 
     def set_custom_photo(self, plant_id: int, photo: str) -> None:
         """A user-uploaded photo, which replaces whatever photo was shown before."""

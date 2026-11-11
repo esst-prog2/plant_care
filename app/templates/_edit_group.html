@@ -1,9 +1,9 @@
-<div class="overlay" role="dialog" aria-modal="true" aria-label="Rename {{ group.name }}">
+<div class="overlay" role="dialog" aria-modal="true" aria-label="Rename {{ current_name }}">
   <div class="dialog">
     <button type="button" class="close" aria-label="Close" onclick="this.closest('.overlay').remove()">&times;</button>
     <h2>Rename group</h2>
-    <form hx-post="/groups/{{ group.id }}/rename" hx-target="#groups-wrap">
-      <input type="text" name="name" value="{{ group.name }}" required autofocus>
+    <form hx-post="{{ rename_url }}" hx-target="#groups-wrap">
+      <input type="text" name="name" value="{{ current_name }}" required autofocus>
       <div class="actions">
         <button type="submit" class="primary">Save</button>
       </div>
