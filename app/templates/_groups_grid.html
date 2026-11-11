@@ -4,21 +4,31 @@
     <a class="group-cover-link" href="/groups/all">
       <img src="{{ all_cover }}" alt="">
       <div class="card-body">
-        <h3 class="group-name">{{ all_name }}</h3>
-        <span class="badge">{{ all_count }} {{ plant_word(all_count) }}</span>
+        <div class="group-name-row">
+          <h3 class="group-name">{{ all_name }}</h3>
+          <div class="group-stats">
+            <span class="badge count">{{ all_count }} {{ plant_word(all_count) }}</span>
+            {% if all_due > 0 %}<span class="badge due">{{ all_due }} due</span>{% endif %}
+          </div>
+        </div>
       </div>
     </a>
     <div class="group-actions">
       <button type="button" hx-get="/groups/all/edit" hx-target="#modal">Rename</button>
     </div>
   </article>
-  {% for group, count, cover in group_cards %}
+  {% for group, count, cover, due_count in group_cards %}
   <article class="card group-card">
     <a class="group-cover-link" href="/groups/{{ group.id }}">
       <img src="{{ cover }}" alt="">
       <div class="card-body">
-        <h3 class="group-name">{{ group.name }}</h3>
-        <span class="badge">{{ count }} {{ plant_word(count) }}</span>
+        <div class="group-name-row">
+          <h3 class="group-name">{{ group.name }}</h3>
+          <div class="group-stats">
+            <span class="badge count">{{ count }} {{ plant_word(count) }}</span>
+            {% if due_count > 0 %}<span class="badge due">{{ due_count }} due</span>{% endif %}
+          </div>
+        </div>
       </div>
     </a>
     <div class="group-actions">

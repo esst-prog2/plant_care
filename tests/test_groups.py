@@ -1,4 +1,5 @@
 import re
+from datetime import timedelta
 
 from tests.conftest import TODAY, add_ready
 
@@ -165,6 +166,23 @@ def test_moving_a_plant_to_a_different_group_later(client, db):
     assert db.get_plant(plant.id).group_id == b.id
     assert "Monstera" not in client.get(f"/groups/{a.id}").text
     assert "Monstera" in client.get(f"/groups/{b.id}").text
+
+
+def test_landing_page_shows_a_due_count_badge_on_groups_with_due_plants(client, db):
+    group = db.create_group("Living room")
+    add_ready(db, "Fresh", 7, TODAY - timedelta(days=1), group_id=group.id)  # not due
+    add_ready(db, "Thirsty", 7, TODAY - timedelta(days=7), group_id=group.id)  # due today
+
+    html = client.get("/").text
+    assert "1 due" in html
+
+
+def test_landing_page_shows_no_due_badge_when_nothing_is_due(client, db):
+    group = db.create_group("Living room")
+    add_ready(db, "Fresh", 7, TODAY - timedelta(days=1), group_id=group.id)
+
+    html = client.get("/").text
+    assert "due" not in html.lower()
 
 
 def test_all_group_can_be_renamed(client, db):
