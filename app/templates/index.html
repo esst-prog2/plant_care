@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 {% block content %}
 <header class="topbar">
-  <button class="primary" hx-get="/add" hx-target="#modal">+ Add New Plant</button>
+  <button class="primary" hx-get="/groups/new" hx-target="#modal">+ New Group</button>
   <h1>plant_care</h1>
 </header>
-<main id="grid-wrap">
-  {% include "_grid.html" %}
+<main id="groups-wrap">
+  {% include "_groups_grid.html" %}
 </main>
 {% endblock %}

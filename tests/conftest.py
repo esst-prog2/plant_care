@@ -71,8 +71,8 @@ def client(make_client) -> TestClient:
     return make_client()
 
 
-def add_ready(db: Database, name="Monstera", interval=7, watered: date = TODAY, source="local"):
+def add_ready(db: Database, name="Monstera", interval=7, watered: date = TODAY, source="local", group_id=None):
     """Insert a fully loaded plant that was last watered on `watered`."""
-    plant = db.add_plant(f"local:{name.lower()}", name, watered)
+    plant = db.add_plant(f"local:{name.lower()}", name, watered, group_id=group_id)
     db.complete_plant(plant.id, "/static/placeholder.svg", "Bright light", interval, source)
     return db.get_plant(plant.id)

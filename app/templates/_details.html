@@ -11,6 +11,16 @@
     {% if photo_error %}
     <p class="notice">{{ photo_error }}</p>
     {% endif %}
+    <form class="move-group" hx-post="/plants/{{ card.plant.id }}/group" hx-target="#modal">
+      <label>Group:
+        <select name="group_id" onchange="this.form.requestSubmit()">
+          <option value="" {% if card.plant.group_id is none %}selected{% endif %}>Unassigned</option>
+          {% for g in groups %}
+          <option value="{{ g.id }}" {% if card.plant.group_id == g.id %}selected{% endif %}>{{ g.name }}</option>
+          {% endfor %}
+        </select>
+      </label>
+    </form>
     <h2>{{ card.plant.name }}</h2>
     <p><span class="badge {{ card.status }}">{{ card.label }}</span></p>
     <dl>

@@ -6,6 +6,16 @@
     <form hx-post="/plants" hx-target="#grid-wrap">
       <input type="hidden" name="type_id" value="{{ type_id }}">
       <input type="hidden" name="name" value="{{ name }}">
+      <input type="hidden" name="view_group_id" value="{{ view_group_id }}">
+      <fieldset>
+        <legend>Group</legend>
+        <select name="group_id">
+          <option value="">Unassigned</option>
+          {% for g in groups %}
+          <option value="{{ g.id }}" {% if view_group_id == g.id|string %}selected{% endif %}>{{ g.name }}</option>
+          {% endfor %}
+        </select>
+      </fieldset>
       <fieldset>
         <legend>Light</legend>
         <label><input type="radio" name="light_delta" value="2"> Low light</label>

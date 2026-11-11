@@ -105,15 +105,34 @@ def create_app(
     def render(request: Request, template: str, headers: dict | None = None, **context):
         return templates.TemplateResponse(request, template, context, headers=headers)
 
-    def grid(request: Request, page: int, headers: dict | None = None):
+    def _parse_view_group_id(view_group_id: str) -> int | None:
+        return None if view_group_id == "all" else int(view_group_id)
+
+    def grid(request: Request, page: int, view_group_id: str = "all", headers: dict | None = None):
         today = clock()
-        plants = db.list_plants()
+        plants = db.list_plants(group_id=_parse_view_group_id(view_group_id))
         pg = paginate(len(plants), page)
         cards = [card_view(p, today) for p in plants[pg.start : pg.end]]
-        return render(request, "_grid.html", headers, cards=cards, page=pg, total=len(plants))
+        return render(
+            request, "_grid.html", headers, cards=cards, page=pg, total=len(plants), view_group_id=view_group_id
+        )
+
+    def groups_grid(request: Request, headers: dict | None = None):
+        groups = db.list_groups()
+        group_counts = [(g, len(db.list_plants(group_id=g.id))) for g in groups]
+        return render(
+            request, "_groups_grid.html", headers, group_counts=group_counts, all_count=len(db.list_plants())
+        )
 
     def details(request: Request, plant: Plant, headers: dict | None = None, photo_error: str | None = None):
-        return render(request, "_details.html", headers, card=card_view(plant, clock()), photo_error=photo_error)
+        return render(
+            request,
+            "_details.html",
+            headers,
+            card=card_view(plant, clock()),
+            photo_error=photo_error,
+            groups=db.list_groups(),
+        )
 
     def watered_popup(request: Request, plant: Plant, headers: dict | None = None, feedback_done=False):
         days = card_view(plant, clock())["days"]
@@ -161,28 +180,99 @@ def create_app(
             db.fail_plant(plant_id)
 
     @app.get("/", response_class=HTMLResponse)
-    def index(request: Request, page: int = 1):
+    def landing(request: Request):
+        groups = db.list_groups()
+        group_counts = [(g, len(db.list_plants(group_id=g.id))) for g in groups]
+        return render(request, "index.html", group_counts=group_counts, all_count=len(db.list_plants()))
+
+    def collection_view(request: Request, view_group_id: str, page: int = 1):
         today = clock()
-        plants = db.list_plants()
+        group_id = _parse_view_group_id(view_group_id)
+        plants = db.list_plants(group_id=group_id)
         pg = paginate(len(plants), page)
         cards = [card_view(p, today) for p in plants[pg.start : pg.end]]
-        return render(request, "index.html", cards=cards, page=pg, total=len(plants))
+        return render(
+            request,
+            "collection.html",
+            cards=cards,
+            page=pg,
+            total=len(plants),
+            view_group_id=view_group_id,
+            current_group_id=group_id,
+            groups=db.list_groups(),
+        )
+
+    @app.get("/groups/new", response_class=HTMLResponse)
+    def new_group_panel(request: Request):
+        return render(request, "_new_group.html")
+
+    @app.get("/groups/all", response_class=HTMLResponse)
+    def collection_all(request: Request, page: int = 1):
+        return collection_view(request, "all", page)
+
+    @app.post("/groups", response_class=HTMLResponse)
+    def create_group(request: Request, name: str = Form(...)):
+        name = name.strip()
+        if not name:
+            raise HTTPException(status_code=400, detail="A group name is required")
+        db.create_group(name)
+        return groups_grid(request, headers={"HX-Trigger": "closeModal"})
+
+    @app.get("/groups/{group_id}", response_class=HTMLResponse)
+    def collection_group(request: Request, group_id: int, page: int = 1):
+        if db.get_group(group_id) is None:
+            raise HTTPException(status_code=404, detail="Group not found")
+        return collection_view(request, str(group_id), page)
+
+    @app.get("/groups/{group_id}/edit", response_class=HTMLResponse)
+    def edit_group(request: Request, group_id: int):
+        group = db.get_group(group_id)
+        if group is None:
+            raise HTTPException(status_code=404, detail="Group not found")
+        return render(request, "_edit_group.html", group=group)
+
+    @app.post("/groups/{group_id}/rename", response_class=HTMLResponse)
+    def rename_group(request: Request, group_id: int, name: str = Form(...)):
+        name = name.strip()
+        if not name:
+            raise HTTPException(status_code=400, detail="A group name is required")
+        db.rename_group(group_id, name)
+        return groups_grid(request, headers={"HX-Trigger": "closeModal"})
+
+    @app.get("/groups/{group_id}/confirm-delete", response_class=HTMLResponse)
+    def confirm_delete_group(request: Request, group_id: int):
+        group = db.get_group(group_id)
+        if group is None:
+            raise HTTPException(status_code=404, detail="Group not found")
+        return render(request, "_confirm_delete_group.html", group=group)
+
+    @app.post("/groups/{group_id}/delete", response_class=HTMLResponse)
+    def delete_group(request: Request, group_id: int):
+        db.delete_group(group_id)
+        return groups_grid(request, headers={"HX-Trigger": "closeModal"})
 
     @app.get("/grid", response_class=HTMLResponse)
-    def grid_fragment(request: Request, page: int = 1):
-        return grid(request, page)
+    def grid_fragment(request: Request, page: int = 1, view_group_id: str = "all"):
+        return grid(request, page, view_group_id)
 
     @app.get("/add", response_class=HTMLResponse)
-    def add_panel(request: Request):
-        return render(request, "_add_panel.html")
+    def add_panel(request: Request, view_group_id: str = "all"):
+        return render(request, "_add_panel.html", view_group_id=view_group_id)
 
     @app.get("/search", response_class=HTMLResponse)
-    def search(request: Request, q: str = ""):
-        return render(request, "_results.html", results=service.search(q), q=q.strip())
+    def search(request: Request, q: str = "", view_group_id: str = "all"):
+        return render(request, "_results.html", results=service.search(q), q=q.strip(), view_group_id=view_group_id)
 
     @app.get("/plants/confirm", response_class=HTMLResponse)
-    def confirm_add(request: Request, type_id: str, name: str):
-        return render(request, "_confirm_add.html", type_id=type_id, name=name)
+    def confirm_add(request: Request, type_id: str, name: str, view_group_id: str = "all"):
+        return render(
+            request,
+            "_confirm_add.html",
+            type_id=type_id,
+            name=name,
+            view_group_id=view_group_id,
+            groups=db.list_groups(),
+        )
 
     @app.post("/plants", response_class=HTMLResponse)
     def add_plant(
@@ -193,15 +283,25 @@ def create_app(
         light_delta: int = Form(0),
         warmth_delta: int = Form(0),
         pot_delta: int = Form(0),
+        group_id: str = Form(""),
+        view_group_id: str = Form("all"),
     ):
         name = name.strip()
         if not type_id.strip() or not name:
             raise HTTPException(status_code=400, detail="A plant type is required")
-        plant = db.add_plant(type_id.strip(), name, clock())
+        plant = db.add_plant(
+            type_id.strip(), name, clock(), group_id=int(group_id) if group_id else None
+        )
         background_tasks.add_task(
             load_plant_data, plant.id, plant.type_id, plant.name, light_delta, warmth_delta, pot_delta
         )
-        return grid(request, page=10**9, headers={"HX-Trigger": "closeModal"})
+        return grid(request, page=10**9, view_group_id=view_group_id, headers={"HX-Trigger": "closeModal"})
+
+    @app.post("/plants/{plant_id}/group", response_class=HTMLResponse)
+    def change_plant_group(request: Request, plant_id: int, group_id: str = Form("")):
+        ready_plant(plant_id)
+        db.set_plant_group(plant_id, int(group_id) if group_id else None)
+        return details(request, db.get_plant(plant_id), headers={"HX-Trigger": "refreshGrid"})
 
     @app.get("/plants/{plant_id}/card", response_class=HTMLResponse)
     def card_fragment(request: Request, plant_id: int):
@@ -262,12 +362,16 @@ def create_app(
 
     @app.post("/plants/{plant_id}/remove", response_class=HTMLResponse)
     def remove(
-        request: Request, plant_id: int, background_tasks: BackgroundTasks, page: int = Form(1)
+        request: Request,
+        plant_id: int,
+        background_tasks: BackgroundTasks,
+        page: int = Form(1),
+        view_group_id: str = Form("all"),
     ):
         ready_plant(plant_id)
         db.delete_plant(plant_id)
         if syncer:
             background_tasks.add_task(syncer.run)
-        return grid(request, page, headers={"HX-Trigger": "closeModal"})
+        return grid(request, page, view_group_id=view_group_id, headers={"HX-Trigger": "closeModal"})
 
     return app
