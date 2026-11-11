@@ -3,7 +3,7 @@
     <h2>Remove {{ plant.name }}?</h2>
     <p>This deletes the plant and its watering data.</p>
     <div class="actions">
-      <button type="button" class="danger" hx-post="/plants/{{ plant.id }}/remove" hx-include="#page-input" hx-target="#grid-wrap">Remove</button>
+      <button type="button" class="danger" hx-post="/plants/{{ plant.id }}/remove" hx-include="#page-input, #group-input" hx-target="#grid-wrap">Remove</button>
       <button type="button" onclick="this.closest('.overlay').remove()">Cancel</button>
     </div>
   </div>

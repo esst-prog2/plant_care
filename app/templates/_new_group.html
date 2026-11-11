@@ -1,0 +1,12 @@
+<div class="overlay" role="dialog" aria-modal="true" aria-label="New group">
+  <div class="dialog">
+    <button type="button" class="close" aria-label="Close" onclick="this.closest('.overlay').remove()">&times;</button>
+    <h2>New group</h2>
+    <form hx-post="/groups" hx-target="#groups-wrap">
+      <input type="text" name="name" placeholder="e.g. Living room" required autofocus>
+      <div class="actions">
+        <button type="submit" class="primary">Create</button>
+      </div>
+    </form>
+  </div>
+</div>

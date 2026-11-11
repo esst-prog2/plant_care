@@ -14,6 +14,12 @@ FAILED = "failed"
 
 
 @dataclass(frozen=True)
+class Group:
+    id: int
+    name: str
+
+
+@dataclass(frozen=True)
 class Plant:
     id: int
     type_id: str
@@ -33,6 +39,7 @@ class Plant:
     humidity: str | None
     propagation: str | None
     photo_is_custom: bool
+    group_id: int | None
 
 
 _SCHEMA = """
@@ -52,6 +59,10 @@ CREATE TABLE IF NOT EXISTS plants (
     about TEXT,
     photo_credit TEXT
 );
+CREATE TABLE IF NOT EXISTS groups (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL
+);
 """
 
 _MIGRATIONS = {
@@ -63,6 +74,7 @@ _MIGRATIONS = {
     "humidity": "ALTER TABLE plants ADD COLUMN humidity TEXT",
     "propagation": "ALTER TABLE plants ADD COLUMN propagation TEXT",
     "photo_is_custom": "ALTER TABLE plants ADD COLUMN photo_is_custom INTEGER",
+    "group_id": "ALTER TABLE plants ADD COLUMN group_id INTEGER",
 }
 
 
@@ -87,7 +99,12 @@ def _to_plant(row: sqlite3.Row) -> Plant:
         humidity=row["humidity"],
         propagation=row["propagation"],
         photo_is_custom=bool(row["photo_is_custom"]),
+        group_id=row["group_id"],
     )
+
+
+def _to_group(row: sqlite3.Row) -> Group:
+    return Group(id=row["id"], name=row["name"])
 
 
 class Database:
@@ -107,12 +124,12 @@ class Database:
                 if column not in columns:
                     conn.execute(statement)
 
-    def add_plant(self, type_id: str, name: str, today: date) -> Plant:
+    def add_plant(self, type_id: str, name: str, today: date, group_id: int | None = None) -> Plant:
         with closing(self._connect()) as conn, conn:
             cur = conn.execute(
-                "INSERT INTO plants (type_id, name, date_added, last_watered, data_status)"
-                " VALUES (?, ?, ?, ?, ?)",
-                (type_id, name, today.isoformat(), today.isoformat(), LOADING),
+                "INSERT INTO plants (type_id, name, date_added, last_watered, data_status, group_id)"
+                " VALUES (?, ?, ?, ?, ?, ?)",
+                (type_id, name, today.isoformat(), today.isoformat(), LOADING, group_id),
             )
             plant_id = cur.lastrowid
         return self.get_plant(plant_id)
@@ -145,11 +162,17 @@ class Database:
         with closing(self._connect()) as conn, conn:
             conn.execute("UPDATE plants SET data_status=? WHERE id=?", (FAILED, plant_id))
 
-    def list_plants(self) -> list[Plant]:
+    def list_plants(self, group_id: int | None = None) -> list[Plant]:
         with closing(self._connect()) as conn:
-            rows = conn.execute(
-                "SELECT * FROM plants WHERE data_status != ? ORDER BY id", (FAILED,)
-            ).fetchall()
+            if group_id is None:
+                rows = conn.execute(
+                    "SELECT * FROM plants WHERE data_status != ? ORDER BY id", (FAILED,)
+                ).fetchall()
+            else:
+                rows = conn.execute(
+                    "SELECT * FROM plants WHERE data_status != ? AND group_id = ? ORDER BY id",
+                    (FAILED, group_id),
+                ).fetchall()
         return [_to_plant(r) for r in rows]
 
     def count_plants(self) -> int:
@@ -166,6 +189,36 @@ class Database:
     def delete_plant(self, plant_id: int) -> None:
         with closing(self._connect()) as conn, conn:
             conn.execute("DELETE FROM plants WHERE id=?", (plant_id,))
+
+    def create_group(self, name: str) -> Group:
+        with closing(self._connect()) as conn, conn:
+            cur = conn.execute("INSERT INTO groups (name) VALUES (?)", (name,))
+            group_id = cur.lastrowid
+        return self.get_group(group_id)
+
+    def list_groups(self) -> list[Group]:
+        with closing(self._connect()) as conn:
+            rows = conn.execute("SELECT * FROM groups ORDER BY id").fetchall()
+        return [_to_group(r) for r in rows]
+
+    def get_group(self, group_id: int) -> Group | None:
+        with closing(self._connect()) as conn:
+            row = conn.execute("SELECT * FROM groups WHERE id=?", (group_id,)).fetchone()
+        return _to_group(row) if row else None
+
+    def rename_group(self, group_id: int, name: str) -> None:
+        with closing(self._connect()) as conn, conn:
+            conn.execute("UPDATE groups SET name=? WHERE id=?", (name, group_id))
+
+    def delete_group(self, group_id: int) -> None:
+        """Unassigns the group's plants (they fall back to "All") before deleting it."""
+        with closing(self._connect()) as conn, conn:
+            conn.execute("UPDATE plants SET group_id=NULL WHERE group_id=?", (group_id,))
+            conn.execute("DELETE FROM groups WHERE id=?", (group_id,))
+
+    def set_plant_group(self, plant_id: int, group_id: int | None) -> None:
+        with closing(self._connect()) as conn, conn:
+            conn.execute("UPDATE plants SET group_id=? WHERE id=?", (group_id, plant_id))
 
     def set_custom_photo(self, plant_id: int, photo: str) -> None:
         """A user-uploaded photo, which replaces whatever photo was shown before."""

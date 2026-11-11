@@ -10,7 +10,7 @@
 <body>
   {% block content %}{% endblock %}
   <div id="modal"></div>
-  <div id="refresher" hx-get="/grid" hx-trigger="refreshGrid from:body" hx-include="#page-input" hx-target="#grid-wrap"></div>
+  <div id="refresher" hx-get="/grid" hx-trigger="refreshGrid from:body" hx-include="#page-input, #group-input" hx-target="#grid-wrap"></div>
   <script>
     document.body.addEventListener('closeModal', function () {
       document.getElementById('modal').innerHTML = '';

@@ -15,9 +15,9 @@ First useful version:
 - automatic fetching of the plant photo and a short description from Wikipedia; light requirements, an estimated watering interval, humidity preference and a propagation tip come from a built-in list of common houseplants (general-knowledge estimates, not verified against a horticultural source — see "Where the plant data comes from"); toxicity to pets comes from the same list but is sourced from the ASPCA's own toxic/non-toxic plant list instead of a guess
 - days-left countdown timer for watering with a "Watered" action button to reset the clock
 - Google Calendar reminders: each plant gets two all-day to-dos for its next waterings, and ticking one off on the phone restarts the countdown from that day
+- user-created groups (e.g. by room): a landing page lists "All" plus every group with its plant count; opening one shows the same 3×2 grid scoped to that group's plants; a plant can be assigned to at most one group, at add time or later from its details view; groups can be renamed and deleted (deleting a group never deletes its plants — they just become unassigned)
 
 Not this term:
-- room-based plant organization - grouping plants by their specific locations/rooms within the apartment
 - room-specific to-do lists - generating localized task lists based on room placement and immediate plant care needs
 - care history and growth analytics — charts, logs, or photo timelines of past waterings and repottings
 
@@ -25,6 +25,7 @@ Not this term:
 - Correctly finds the plant type entered into the search bar, allowing me to select it and add it to my list.
 - The Google Calendar reminders appear on the phone, ticking one off there restarts the counter from that day, and clicking the buttons in the app correctly resets the counter.
 - Clicking on the plant's card displays its light requirements, watering interval, toxicity to pets, humidity preference and propagation tip.
+- Creating a group and opening it from the landing page shows only that group's plants, paged independently of every other group; deleting a group leaves its plants in place, visible under "All" with no group.
 
 ## 5. What could stop this
 

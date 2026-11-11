@@ -1,4 +1,5 @@
 <input type="hidden" id="page-input" name="page" value="{{ page.number }}">
+<input type="hidden" id="group-input" name="view_group_id" value="{{ view_group_id }}">
 {% if total == 0 %}
 <p class="empty">No plants yet. Use "+ Add New Plant" to add your first one.</p>
 {% endif %}
@@ -7,8 +8,8 @@
 </div>
 {% if page.pages > 1 %}
 <nav class="pager" aria-label="Pages">
-  <button type="button" hx-get="/grid?page={{ page.number - 1 }}" hx-target="#grid-wrap" {% if not page.has_prev %}disabled{% endif %}>&larr; Previous</button>
+  <button type="button" hx-get="/grid?view_group_id={{ view_group_id }}&page={{ page.number - 1 }}" hx-target="#grid-wrap" {% if not page.has_prev %}disabled{% endif %}>&larr; Previous</button>
   <span>Page {{ page.number }} of {{ page.pages }}</span>
-  <button type="button" hx-get="/grid?page={{ page.number + 1 }}" hx-target="#grid-wrap" {% if not page.has_next %}disabled{% endif %}>Next &rarr;</button>
+  <button type="button" hx-get="/grid?view_group_id={{ view_group_id }}&page={{ page.number + 1 }}" hx-target="#grid-wrap" {% if not page.has_next %}disabled{% endif %}>Next &rarr;</button>
 </nav>
 {% endif %}

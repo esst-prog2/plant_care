@@ -1,0 +1,21 @@
+{% macro plant_word(count) %}plant{{ '' if count == 1 else 's' }}{% endmacro %}
+<div class="grid">
+  <article class="card group-card">
+    <a class="group-link" href="/groups/all">
+      <h3>All</h3>
+      <span class="badge">{{ all_count }} {{ plant_word(all_count) }}</span>
+    </a>
+  </article>
+  {% for group, count in group_counts %}
+  <article class="card group-card">
+    <a class="group-link" href="/groups/{{ group.id }}">
+      <h3>{{ group.name }}</h3>
+      <span class="badge">{{ count }} {{ plant_word(count) }}</span>
+    </a>
+    <div class="group-actions">
+      <button type="button" hx-get="/groups/{{ group.id }}/edit" hx-target="#modal">Rename</button>
+      <button type="button" hx-get="/groups/{{ group.id }}/confirm-delete" hx-target="#modal">Delete</button>
+    </div>
+  </article>
+  {% endfor %}
+</div>

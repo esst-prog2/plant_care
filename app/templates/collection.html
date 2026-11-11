@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<header class="topbar">
+  <a href="/" class="back" aria-label="Back to groups">&larr;</a>
+  <select aria-label="Switch group" onchange="location.href=this.value">
+    <option value="/groups/all" {% if current_group_id is none %}selected{% endif %}>All</option>
+    {% for g in groups %}
+    <option value="/groups/{{ g.id }}" {% if current_group_id == g.id %}selected{% endif %}>{{ g.name }}</option>
+    {% endfor %}
+  </select>
+  <button class="primary" hx-get="/add?view_group_id={{ view_group_id }}" hx-target="#modal">+ Add New Plant</button>
+  <h1>plant_care</h1>
+</header>
+<main id="grid-wrap">
+  {% include "_grid.html" %}
+</main>
+{% endblock %}

@@ -24,7 +24,7 @@ def _page_value(html: str) -> int:
 
 
 def test_empty_homepage_still_offers_add_button(client):
-    html = client.get("/").text
+    html = client.get("/groups/all").text
     assert "+ Add New Plant" in html and "No plants yet" in html
     assert _card_count(html) == 0 and "Page 1 of" not in html
 
@@ -32,7 +32,7 @@ def test_empty_homepage_still_offers_add_button(client):
 def test_six_plants_fill_the_grid_without_page_controls(client, db):
     for i in range(6):
         add_ready(db, f"Plant{i}")
-    html = client.get("/").text
+    html = client.get("/groups/all").text
     assert _card_count(html) == 6 and 'class="pager"' not in html
 
 
@@ -93,7 +93,7 @@ def test_adding_a_seventh_plant_jumps_to_the_page_that_shows_it(client, db):
 
 def test_plant_added_while_data_is_loading_shows_loading_card(client, db):
     db.add_plant("local:monstera", "Monstera", TODAY)
-    html = client.get("/").text
+    html = client.get("/groups/all").text
     assert "Loading…" in html and 'hx-trigger="every 1s"' in html
 
 
@@ -316,7 +316,7 @@ def test_cards_show_green_due_and_overdue_states(client, db):
     add_ready(db, "Fresh", 7, TODAY - timedelta(days=4))
     add_ready(db, "DueToday", 7, TODAY - timedelta(days=7))
     add_ready(db, "Late", 7, TODAY - timedelta(days=9))
-    html = client.get("/").text
+    html = client.get("/groups/all").text
     assert re.search(r'badge ok">3 days left', html)
     assert 'badge due">Watering: Due today!' in html
     assert 'badge overdue">Watering: 2 days overdue' in html
@@ -324,25 +324,25 @@ def test_cards_show_green_due_and_overdue_states(client, db):
 
 def test_watered_resets_countdown_turns_green_and_persists(client, db, make_client):
     plant = add_ready(db, "Pilea", 7, TODAY - timedelta(days=7))
-    assert "Due today!" in client.get("/").text
+    assert "Due today!" in client.get("/groups/all").text
     response = client.post(f"/plants/{plant.id}/watered")
     assert "refreshGrid" in response.headers["HX-Trigger"]
     assert "Watered!" in response.text and "7 days" in response.text
-    html = client.get("/").text
+    html = client.get("/groups/all").text
     assert "7 days left" in html and "Due today!" not in html
-    assert "7 days left" in make_client().get("/").text  # after a restart
+    assert "7 days left" in make_client().get("/groups/all").text  # after a restart
 
 
 def test_watering_early_resets_to_full_interval(client, db):
     plant = add_ready(db, "Pilea", 7, TODAY - timedelta(days=3))
     client.post(f"/plants/{plant.id}/watered")
-    assert "7 days left" in client.get("/").text
+    assert "7 days left" in client.get("/groups/all").text
 
 
 def test_countdown_follows_the_clock_across_days(client, db, clock):
     add_ready(db, "Pilea", 7, TODAY)
     clock.today = TODAY + timedelta(days=1)
-    assert "6 days left" in client.get("/").text
+    assert "6 days left" in client.get("/groups/all").text
 
 
 # --- removing ------------------------------------------------------------------------
@@ -369,7 +369,7 @@ def test_removing_only_plant_on_last_page_shows_previous_page(client, db):
 def test_removed_plant_disappears_from_the_grid(client, db):
     plant = add_ready(db, "Thirsty", 7, TODAY - timedelta(days=8))
     client.post(f"/plants/{plant.id}/remove", data={"page": 1})
-    assert "Thirsty" not in client.get("/").text and db.count_plants() == 0
+    assert "Thirsty" not in client.get("/groups/all").text and db.count_plants() == 0
 
 
 # --- Google reminders wired into the pages ------------------------------------------------
@@ -429,7 +429,7 @@ def test_app_works_and_says_so_when_google_is_not_configured(make_client, caplog
 def test_collection_survives_restart(client, db, config, make_client):
     _add(client)
     _add(client, "local:pilea", "Pilea")
-    html = make_client().get("/").text
+    html = make_client().get("/groups/all").text
     assert "Monstera" in html and "Pilea" in html
 
 
