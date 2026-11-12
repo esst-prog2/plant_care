@@ -25,6 +25,31 @@ from .tasks_client import TasksClient
 log =logging.getLogger("plant_care")
 APP_DIR = Path(__file__).resolve().parent
 
+GROUP_PRESETS = [
+    ("leaf", "Leaf"),
+    ("cactus", "Cactus"),
+    ("succulent", "Succulent"),
+    ("potted-plant", "Potted plant"),
+    ("flower", "Flower"),
+    ("vine", "Vine"),
+    ("fern", "Fern"),
+    ("palm", "Palm"),
+]
+
+
+def _group_presets() -> list[dict]:
+    return [
+        {"value": value, "label": label, "path": f"/static/group-presets/{value}.svg"}
+        for value, label in GROUP_PRESETS
+    ]
+
+
+def _preset_value(photo: str | None) -> str | None:
+    """The preset name behind a stored `/static/group-presets/<name>.svg` cover, or None."""
+    if not photo or not photo.startswith("/static/group-presets/"):
+        return None
+    return photo.rsplit("/", 1)[-1].removesuffix(".svg")
+
 
 def _day_word(count: int) -> str:
     return f"{count} day{'s' if count != 1 else ''}"
@@ -62,7 +87,7 @@ def create_app(
 ) -> FastAPI:
     config = config or load_config()
     clock = clock or date.today
-    db = db or Database(config.db_path)
+    db = db or Database(config.db_path, config.photos_dir)
     db.init()
     db.purge_unfinished()
     if service is None:
@@ -121,6 +146,10 @@ def create_app(
         )
 
     def _cover_photo(group_id: int | None) -> str:
+        if group_id is not None:
+            group = db.get_group(group_id)
+            if group and group.photo:
+                return group.photo
         plants = db.list_plants(group_id=group_id)
         return (plants[0].photo if plants else None) or "/static/placeholder.svg"
 
@@ -244,25 +273,41 @@ def create_app(
 
     @app.get("/groups/new", response_class=HTMLResponse)
     def new_group_panel(request: Request):
-        return render(request, "_new_group.html")
+        return render(request, "_new_group.html", presets=_group_presets(), selected_preset=None)
 
     @app.get("/groups/all", response_class=HTMLResponse)
     def collection_all(request: Request, page: int = 1):
         return collection_view(request, "all", page)
 
     @app.post("/groups", response_class=HTMLResponse)
-    def create_group(request: Request, name: str = Form(...)):
+    async def create_group(
+        request: Request,
+        name: str = Form(...),
+        preset: str = Form(""),
+        photo: UploadFile | None = File(None),
+    ):
         name = name.strip()
         if not name:
             raise HTTPException(status_code=400, detail="A group name is required")
-        db.create_group(name)
+        cover = f"/static/group-presets/{preset}.svg" if preset else None
+        group = db.create_group(name, photo=cover)
+        if photo is not None and photo.filename:
+            content = await photo.read()
+            stored = store_uploaded_photo(content, photo.content_type or "", config.photos_dir, group.id, prefix="group-")
+            if stored is None:
+                db.delete_group(group.id)
+                return render(
+                    request, "_new_group.html", name=name, presets=_group_presets(), selected_preset=preset or None,
+                    photo_error="That file couldn't be used as a cover (unsupported type or too large).",
+                )
+            db.set_group_photo(group.id, f"{stored}?v={secrets.token_hex(4)}")
         return groups_grid(request, headers={"HX-Trigger": "closeModal"})
 
     @app.get("/groups/all/edit", response_class=HTMLResponse)
     def edit_all_group(request: Request):
         return render(
             request, "_edit_group.html", rename_url="/groups/all/rename",
-            current_name=db.get_setting(ALL_GROUP_NAME_KEY, "All"),
+            current_name=db.get_setting(ALL_GROUP_NAME_KEY, "All"), is_all=True,
         )
 
     @app.post("/groups/all/rename", response_class=HTMLResponse)
@@ -285,14 +330,37 @@ def create_app(
         if group is None:
             raise HTTPException(status_code=404, detail="Group not found")
         return render(
-            request, "_edit_group.html", rename_url=f"/groups/{group_id}/rename", current_name=group.name
+            request, "_edit_group.html", rename_url=f"/groups/{group_id}/rename", current_name=group.name,
+            is_all=False, presets=_group_presets(), selected_preset=_preset_value(group.photo),
         )
 
     @app.post("/groups/{group_id}/rename", response_class=HTMLResponse)
-    def rename_group(request: Request, group_id: int, name: str = Form(...)):
+    async def rename_group(
+        request: Request,
+        group_id: int,
+        name: str = Form(...),
+        preset: str = Form(""),
+        photo: UploadFile | None = File(None),
+    ):
+        group = db.get_group(group_id)
+        if group is None:
+            raise HTTPException(status_code=404, detail="Group not found")
         name = name.strip()
         if not name:
             raise HTTPException(status_code=400, detail="A group name is required")
+        if photo is not None and photo.filename:
+            content = await photo.read()
+            stored = store_uploaded_photo(content, photo.content_type or "", config.photos_dir, group_id, prefix="group-")
+            if stored is None:
+                return render(
+                    request, "_edit_group.html", rename_url=f"/groups/{group_id}/rename",
+                    current_name=group.name, is_all=False, presets=_group_presets(),
+                    selected_preset=_preset_value(group.photo),
+                    photo_error="That file couldn't be used as a cover (unsupported type or too large).",
+                )
+            db.set_group_photo(group_id, f"{stored}?v={secrets.token_hex(4)}")
+        elif preset:
+            db.set_group_photo(group_id, f"/static/group-presets/{preset}.svg")
         db.rename_group(group_id, name)
         return groups_grid(request, headers={"HX-Trigger": "closeModal"})
 

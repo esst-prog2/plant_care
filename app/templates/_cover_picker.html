@@ -1,0 +1,14 @@
+<fieldset class="cover-picker">
+  <legend>Cover</legend>
+  <div class="cover-presets">
+    {% for preset in presets %}
+    <label class="cover-preset">
+      <input type="radio" name="preset" value="{{ preset.value }}"{% if preset.value == selected_preset %} checked{% endif %}>
+      <img src="{{ preset.path }}" alt="{{ preset.label }}">
+    </label>
+    {% endfor %}
+  </div>
+  <label class="cover-upload">Or upload your own photo
+    <input type="file" name="photo" accept="image/jpeg,image/png,image/webp,image/gif">
+  </label>
+</fieldset>

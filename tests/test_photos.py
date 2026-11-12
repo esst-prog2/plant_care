@@ -63,3 +63,12 @@ def test_uploading_a_different_format_removes_the_old_file(tmp_path):
     assert path == "/photos/5.png"
     assert (tmp_path / "5.png").read_bytes() == b"new png data"
     assert not (tmp_path / "5.jpg").exists()
+
+
+def test_a_prefix_keeps_a_plant_and_a_group_with_the_same_id_from_colliding(tmp_path):
+    plant_path = store_uploaded_photo(b"plant photo", "image/jpeg", tmp_path, 5)
+    group_path = store_uploaded_photo(b"group photo", "image/jpeg", tmp_path, 5, prefix="group-")
+    assert plant_path == "/photos/5.jpg"
+    assert group_path == "/photos/group-5.jpg"
+    assert (tmp_path / "5.jpg").read_bytes() == b"plant photo"
+    assert (tmp_path / "group-5.jpg").read_bytes() == b"group photo"

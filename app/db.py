@@ -17,6 +17,7 @@ FAILED = "failed"
 class Group:
     id: int
     name: str
+    photo: str | None
 
 
 @dataclass(frozen=True)
@@ -72,15 +73,20 @@ CREATE TABLE IF NOT EXISTS settings (
 ALL_GROUP_NAME_KEY = "all_group_name"
 
 _MIGRATIONS = {
-    "sync_pending": "ALTER TABLE plants ADD COLUMN sync_pending INTEGER NOT NULL DEFAULT 1",
-    "synced_watered": "ALTER TABLE plants ADD COLUMN synced_watered TEXT",
-    "about": "ALTER TABLE plants ADD COLUMN about TEXT",
-    "photo_credit": "ALTER TABLE plants ADD COLUMN photo_credit TEXT",
-    "toxicity": "ALTER TABLE plants ADD COLUMN toxicity TEXT",
-    "humidity": "ALTER TABLE plants ADD COLUMN humidity TEXT",
-    "propagation": "ALTER TABLE plants ADD COLUMN propagation TEXT",
-    "photo_is_custom": "ALTER TABLE plants ADD COLUMN photo_is_custom INTEGER",
-    "group_id": "ALTER TABLE plants ADD COLUMN group_id INTEGER",
+    "plants": {
+        "sync_pending": "ALTER TABLE plants ADD COLUMN sync_pending INTEGER NOT NULL DEFAULT 1",
+        "synced_watered": "ALTER TABLE plants ADD COLUMN synced_watered TEXT",
+        "about": "ALTER TABLE plants ADD COLUMN about TEXT",
+        "photo_credit": "ALTER TABLE plants ADD COLUMN photo_credit TEXT",
+        "toxicity": "ALTER TABLE plants ADD COLUMN toxicity TEXT",
+        "humidity": "ALTER TABLE plants ADD COLUMN humidity TEXT",
+        "propagation": "ALTER TABLE plants ADD COLUMN propagation TEXT",
+        "photo_is_custom": "ALTER TABLE plants ADD COLUMN photo_is_custom INTEGER",
+        "group_id": "ALTER TABLE plants ADD COLUMN group_id INTEGER",
+    },
+    "groups": {
+        "photo": "ALTER TABLE groups ADD COLUMN photo TEXT",
+    },
 }
 
 
@@ -110,12 +116,13 @@ def _to_plant(row: sqlite3.Row) -> Plant:
 
 
 def _to_group(row: sqlite3.Row) -> Group:
-    return Group(id=row["id"], name=row["name"])
+    return Group(id=row["id"], name=row["name"], photo=row["photo"])
 
 
 class Database:
-    def __init__(self, path: Path | str):
+    def __init__(self, path: Path | str, photos_dir: Path | str | None = None):
         self.path = str(path)
+        self.photos_dir = Path(photos_dir) if photos_dir is not None else None
 
     def _connect(self) -> sqlite3.Connection:
         conn = sqlite3.connect(self.path, timeout=10)
@@ -125,10 +132,11 @@ class Database:
     def init(self) -> None:
         with closing(self._connect()) as conn, conn:
             conn.executescript(_SCHEMA)
-            columns = {row["name"] for row in conn.execute("PRAGMA table_info(plants)")}
-            for column, statement in _MIGRATIONS.items():
-                if column not in columns:
-                    conn.execute(statement)
+            for table, migrations in _MIGRATIONS.items():
+                columns = {row["name"] for row in conn.execute(f"PRAGMA table_info({table})")}
+                for column, statement in migrations.items():
+                    if column not in columns:
+                        conn.execute(statement)
 
     def add_plant(self, type_id: str, name: str, today: date, group_id: int | None = None) -> Plant:
         with closing(self._connect()) as conn, conn:
@@ -196,9 +204,11 @@ class Database:
         with closing(self._connect()) as conn, conn:
             conn.execute("DELETE FROM plants WHERE id=?", (plant_id,))
 
-    def create_group(self, name: str) -> Group:
+    def create_group(self, name: str, photo: str | None = None) -> Group:
         with closing(self._connect()) as conn, conn:
-            cur = conn.execute("INSERT INTO groups (name) VALUES (?)", (name,))
+            cur = conn.execute(
+                "INSERT INTO groups (name, photo) VALUES (?, ?)", (name, photo)
+            )
             group_id = cur.lastrowid
         return self.get_group(group_id)
 
@@ -216,8 +226,20 @@ class Database:
         with closing(self._connect()) as conn, conn:
             conn.execute("UPDATE groups SET name=? WHERE id=?", (name, group_id))
 
+    def set_group_photo(self, group_id: int, photo: str | None) -> None:
+        with closing(self._connect()) as conn, conn:
+            conn.execute("UPDATE groups SET photo=? WHERE id=?", (photo, group_id))
+
     def delete_group(self, group_id: int) -> None:
-        """Unassigns the group's plants (they fall back to "All") before deleting it."""
+        """Unassigns the group's plants (they fall back to "All") before deleting it.
+
+        Also deletes an uploaded cover file (`/photos/...`), but never a preset's
+        shared static asset (`/static/...`).
+        """
+        group = self.get_group(group_id)
+        if group and group.photo and group.photo.startswith("/photos/") and self.photos_dir:
+            filename = group.photo.split("?", 1)[0].removeprefix("/photos/")
+            (self.photos_dir / filename).unlink(missing_ok=True)
         with closing(self._connect()) as conn, conn:
             conn.execute("UPDATE plants SET group_id=NULL WHERE group_id=?", (group_id,))
             conn.execute("DELETE FROM groups WHERE id=?", (group_id,))

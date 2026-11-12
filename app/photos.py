@@ -54,17 +54,22 @@ def store_photo(
             client.close()
 
 
-def store_uploaded_photo(content: bytes, content_type: str, photos_dir: Path, plant_id: int) -> str | None:
-    """Save a user-uploaded photo, replacing any existing file for this plant.
+def store_uploaded_photo(
+    content: bytes, content_type: str, photos_dir: Path, owner_id: int, prefix: str = ""
+) -> str | None:
+    """Save a user-uploaded photo, replacing any existing file for this owner.
 
+    `prefix` distinguishes owners sharing the same numeric id across different kinds
+    (e.g. a plant and a group), so their files in `photos_dir` can't collide.
     Returns the web path, or None if the file's type or size fails validation.
     """
     extension = _EXTENSIONS.get((content_type or "").split(";")[0].strip())
     if extension is None or len(content) > MAX_BYTES:
         return None
     photos_dir.mkdir(parents=True, exist_ok=True)
-    for other in photos_dir.glob(f"{plant_id}.*"):
+    stem = f"{prefix}{owner_id}"
+    for other in photos_dir.glob(f"{stem}.*"):
         if other.suffix != extension:
             other.unlink()
-    (photos_dir / f"{plant_id}{extension}").write_bytes(content)
-    return f"/photos/{plant_id}{extension}"
+    (photos_dir / f"{stem}{extension}").write_bytes(content)
+    return f"/photos/{stem}{extension}"
