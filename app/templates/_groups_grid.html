@@ -20,7 +20,7 @@
       <button type="button" hx-get="/groups/all/edit" hx-target="#modal">Rename</button>
       {% else %}
       <button type="button" hx-get="/groups/{{ e.id }}/edit" hx-target="#modal">Edit</button>
-      <button type="button" hx-get="/groups/{{ e.id }}/confirm-delete" hx-target="#modal">Delete</button>
+      <button type="button" class="danger" hx-get="/groups/{{ e.id }}/confirm-delete" hx-target="#modal">Delete</button>
       {% endif %}
     </div>
   </article>
