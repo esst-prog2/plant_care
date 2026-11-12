@@ -80,6 +80,7 @@
     white-space: nowrap;
   }
   .jump-nav a:hover, .jump-nav a:focus-visible { border-color: var(--green); color: var(--green); }
+  .jump-nav a.active { background: var(--green); border-color: var(--green); color: #fff; }
 
   section[id] { scroll-margin-top: 4.5rem; }
 
@@ -406,9 +407,9 @@
   <section class="block">
     <h2 style="font-size:1.3rem;margin:0 0 .5rem;">Also in the box</h2>
     <ul class="also">
-      <li>Toxicity to pets, sourced from the ASPCA's own published list — not a guess.</li>
-      <li>Group your plants by room, each with its own cover photo or a built-in icon.</li>
-      <li>Upload your own photo for any plant, replacing the automatic one.</li>
+      <li>A plant's photo and short description come straight from Wikipedia the moment you add it — toxicity to pets is the one field pulled from the ASPCA's own list instead, because a wrong guess there matters more than a wrong guess anywhere else.</li>
+      <li>Group your plants by room — pick one of 8 built-in cover icons, or upload your own photo for the whole group.</li>
+      <li>Upload your own photo for any individual plant too, any time, replacing the automatic Wikipedia one.</li>
     </ul>
   </section>
 
@@ -453,6 +454,30 @@ python run.py</code></pre>
     }, { threshold: .4 });
     io.observe(detail);
   }
+
+  // Scrollspy: highlight the jump-nav link for whichever section is
+  // currently near the top of the viewport.
+  (function () {
+    var navLinks = document.querySelectorAll('.jump-nav a');
+    if (!navLinks.length || !('IntersectionObserver' in window)) return;
+    var byId = {};
+    var sections = [];
+    navLinks.forEach(function (a) {
+      var id = a.getAttribute('href').slice(1);
+      var section = document.getElementById(id);
+      if (section) { byId[id] = a; sections.push(section); }
+    });
+    var spy = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        var link = byId[entry.target.id];
+        if (!link) return;
+        navLinks.forEach(function (a) { a.classList.remove('active'); });
+        link.classList.add('active');
+      });
+    }, { rootMargin: '-56px 0px -70% 0px', threshold: 0 });
+    sections.forEach(function (s) { spy.observe(s); });
+  })();
 
   // Interactive "Watered" demo: client-side only, mirrors the real
   // watered -> feedback -> adjusted-estimate flow. No network calls.
