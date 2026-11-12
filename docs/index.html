@@ -95,6 +95,13 @@
     border: 1px solid var(--line);
     display: block;
   }
+  .feature-media.calendar-proof { position: relative; }
+  .feature-media.calendar-proof img.detail {
+    width: 62%;
+    margin-top: -2.5rem;
+    margin-left: auto;
+    box-shadow: 0 6px 18px rgba(35, 48, 42, .12);
+  }
   @media (max-width: 760px) {
     .feature { grid-template-columns: 1fr; }
     .feature:nth-of-type(2) .feature-media { order: 0; }
@@ -166,9 +173,10 @@
       <h2>A reminder on the calendar you already have open</h2>
       <p>Watering reminders aren't another notification from another app you'll eventually mute. Each plant gets real, all-day Google Calendar to-dos — the same calendar on your phone. Tick one off there, and plant_care picks it up and moves the countdown forward on its own.</p>
     </div>
-    <div class="feature-media">
-      <img src="images/watering-status.png" alt="A Monstera plant card showing a 'Watering: 1 day overdue' badge next to a green Watered button">
-      <p class="caption">The in-app view of a plant that's due — the matching to-do sits in your Google Calendar, right where your other reminders already are.</p>
+    <div class="feature-media calendar-proof">
+      <img src="images/calendar-week.png" alt="A Google Calendar week view with real all-day to-dos: Water Corn plant, Water Money tree, and Water Cactus">
+      <img src="images/calendar-detail.png" alt="The 'Water Corn plant' to-do open, showing its plant_care note, 'Only me' visibility, and a Mark as done button" class="detail">
+      <p class="caption">A real week from a Google Calendar — these are actual to-dos plant_care created, not a mockup.</p>
     </div>
   </section>
 
