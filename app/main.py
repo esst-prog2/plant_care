@@ -162,23 +162,24 @@ def create_app(
                 due += 1
         return due
 
-    def groups_grid(request: Request, headers: dict | None = None):
-        groups = db.list_groups()
-        group_cards = [
-            (g, len(plants := db.list_plants(group_id=g.id)), _cover_photo(g.id), _due_count(plants))
-            for g in groups
-        ]
+    def _groups_page(page: int):
         all_plants = db.list_plants()
-        return render(
-            request,
-            "_groups_grid.html",
-            headers,
-            group_cards=group_cards,
-            all_count=len(all_plants),
-            all_name=db.get_setting(ALL_GROUP_NAME_KEY, "All"),
-            all_cover=_cover_photo(None),
-            all_due=_due_count(all_plants),
-        )
+        entries = [{
+            "is_all": True, "id": None, "name": db.get_setting(ALL_GROUP_NAME_KEY, "All"),
+            "cover": _cover_photo(None), "count": len(all_plants), "due": _due_count(all_plants),
+        }]
+        for g in db.list_groups():
+            plants = db.list_plants(group_id=g.id)
+            entries.append({
+                "is_all": False, "id": g.id, "name": g.name,
+                "cover": _cover_photo(g.id), "count": len(plants), "due": _due_count(plants),
+            })
+        pg = paginate(len(entries), page)
+        return entries[pg.start : pg.end], pg
+
+    def groups_grid(request: Request, page: int = 1, headers: dict | None = None):
+        entries, pg = _groups_page(page)
+        return render(request, "_groups_grid.html", headers, entries=entries, page=pg)
 
     def details(request: Request, plant: Plant, headers: dict | None = None, photo_error: str | None = None):
         return render(
@@ -236,22 +237,9 @@ def create_app(
             db.fail_plant(plant_id)
 
     @app.get("/", response_class=HTMLResponse)
-    def landing(request: Request):
-        groups = db.list_groups()
-        group_cards = [
-            (g, len(plants := db.list_plants(group_id=g.id)), _cover_photo(g.id), _due_count(plants))
-            for g in groups
-        ]
-        all_plants = db.list_plants()
-        return render(
-            request,
-            "index.html",
-            group_cards=group_cards,
-            all_count=len(all_plants),
-            all_name=db.get_setting(ALL_GROUP_NAME_KEY, "All"),
-            all_cover=_cover_photo(None),
-            all_due=_due_count(all_plants),
-        )
+    def landing(request: Request, page: int = 1):
+        entries, pg = _groups_page(page)
+        return render(request, "index.html", entries=entries, page=pg)
 
     def collection_view(request: Request, view_group_id: str, page: int = 1):
         today = clock()
@@ -301,7 +289,7 @@ def create_app(
                     photo_error="That file couldn't be used as a cover (unsupported type or too large).",
                 )
             db.set_group_photo(group.id, f"{stored}?v={secrets.token_hex(4)}")
-        return groups_grid(request, headers={"HX-Trigger": "closeModal"})
+        return groups_grid(request, page=10**9, headers={"HX-Trigger": "closeModal"})
 
     @app.get("/groups/all/edit", response_class=HTMLResponse)
     def edit_all_group(request: Request):
@@ -311,12 +299,12 @@ def create_app(
         )
 
     @app.post("/groups/all/rename", response_class=HTMLResponse)
-    def rename_all_group(request: Request, name: str = Form(...)):
+    def rename_all_group(request: Request, name: str = Form(...), page: int = Form(1)):
         name = name.strip()
         if not name:
             raise HTTPException(status_code=400, detail="A group name is required")
         db.set_setting(ALL_GROUP_NAME_KEY, name)
-        return groups_grid(request, headers={"HX-Trigger": "closeModal"})
+        return groups_grid(request, page, headers={"HX-Trigger": "closeModal"})
 
     @app.get("/groups/{group_id}", response_class=HTMLResponse)
     def collection_group(request: Request, group_id: int, page: int = 1):
@@ -341,6 +329,7 @@ def create_app(
         name: str = Form(...),
         preset: str = Form(""),
         photo: UploadFile | None = File(None),
+        page: int = Form(1),
     ):
         group = db.get_group(group_id)
         if group is None:
@@ -362,7 +351,7 @@ def create_app(
         elif preset:
             db.set_group_photo(group_id, f"/static/group-presets/{preset}.svg")
         db.rename_group(group_id, name)
-        return groups_grid(request, headers={"HX-Trigger": "closeModal"})
+        return groups_grid(request, page, headers={"HX-Trigger": "closeModal"})
 
     @app.get("/groups/{group_id}/confirm-delete", response_class=HTMLResponse)
     def confirm_delete_group(request: Request, group_id: int):
@@ -372,13 +361,17 @@ def create_app(
         return render(request, "_confirm_delete_group.html", group=group)
 
     @app.post("/groups/{group_id}/delete", response_class=HTMLResponse)
-    def delete_group(request: Request, group_id: int):
+    def delete_group(request: Request, group_id: int, page: int = Form(1)):
         db.delete_group(group_id)
-        return groups_grid(request, headers={"HX-Trigger": "closeModal"})
+        return groups_grid(request, page, headers={"HX-Trigger": "closeModal"})
 
     @app.get("/grid", response_class=HTMLResponse)
     def grid_fragment(request: Request, page: int = 1, view_group_id: str = "all"):
         return grid(request, page, view_group_id)
+
+    @app.get("/groups-grid", response_class=HTMLResponse)
+    def groups_grid_fragment(request: Request, page: int = 1):
+        return groups_grid(request, page)
 
     @app.get("/add", response_class=HTMLResponse)
     def add_panel(request: Request, view_group_id: str = "all"):

@@ -3,7 +3,7 @@
     <h2>Delete "{{ group.name }}"?</h2>
     <p>Its plants are not deleted — they stay in your collection under "All" with no group.</p>
     <div class="actions">
-      <button type="button" class="danger" hx-post="/groups/{{ group.id }}/delete" hx-target="#groups-wrap">Delete</button>
+      <button type="button" class="danger" hx-post="/groups/{{ group.id }}/delete" hx-target="#groups-wrap" hx-include="#groups-page-input">Delete</button>
       <button type="button" onclick="this.closest('.overlay').remove()">Cancel</button>
     </div>
   </div>

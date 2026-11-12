@@ -1,40 +1,35 @@
 {% macro plant_word(count) %}plant{{ '' if count == 1 else 's' }}{% endmacro %}
-<div class="groups-grid">
+<input type="hidden" id="groups-page-input" name="page" value="{{ page.number }}">
+<div class="grid">
+  {% for e in entries %}
   <article class="card group-card">
-    <a class="group-cover-link" href="/groups/all">
-      <img src="{{ all_cover }}" alt="">
+    <a class="group-cover-link" href="{{ '/groups/all' if e.is_all else '/groups/' ~ e.id }}">
+      <img src="{{ e.cover }}" alt="">
       <div class="card-body">
         <div class="group-name-row">
-          <h3 class="group-name">{{ all_name }}</h3>
+          <h3 class="group-name">{{ e.name }}</h3>
           <div class="group-stats">
-            <span class="badge count">{{ all_count }} {{ plant_word(all_count) }}</span>
-            {% if all_due > 0 %}<span class="badge due">{{ all_due }} due</span>{% endif %}
+            <span class="badge count">{{ e.count }} {{ plant_word(e.count) }}</span>
+            {% if e.due > 0 %}<span class="badge due">{{ e.due }} due</span>{% endif %}
           </div>
         </div>
       </div>
     </a>
     <div class="group-actions">
+      {% if e.is_all %}
       <button type="button" hx-get="/groups/all/edit" hx-target="#modal">Rename</button>
-    </div>
-  </article>
-  {% for group, count, cover, due_count in group_cards %}
-  <article class="card group-card">
-    <a class="group-cover-link" href="/groups/{{ group.id }}">
-      <img src="{{ cover }}" alt="">
-      <div class="card-body">
-        <div class="group-name-row">
-          <h3 class="group-name">{{ group.name }}</h3>
-          <div class="group-stats">
-            <span class="badge count">{{ count }} {{ plant_word(count) }}</span>
-            {% if due_count > 0 %}<span class="badge due">{{ due_count }} due</span>{% endif %}
-          </div>
-        </div>
-      </div>
-    </a>
-    <div class="group-actions">
-      <button type="button" hx-get="/groups/{{ group.id }}/edit" hx-target="#modal">Edit</button>
-      <button type="button" hx-get="/groups/{{ group.id }}/confirm-delete" hx-target="#modal">Delete</button>
+      {% else %}
+      <button type="button" hx-get="/groups/{{ e.id }}/edit" hx-target="#modal">Edit</button>
+      <button type="button" hx-get="/groups/{{ e.id }}/confirm-delete" hx-target="#modal">Delete</button>
+      {% endif %}
     </div>
   </article>
   {% endfor %}
 </div>
+{% if page.pages > 1 %}
+<nav class="pager" aria-label="Pages">
+  <button type="button" hx-get="/groups-grid?page={{ page.number - 1 }}" hx-target="#groups-wrap" {% if not page.has_prev %}disabled{% endif %}>&larr; Previous</button>
+  <span>Page {{ page.number }} of {{ page.pages }}</span>
+  <button type="button" hx-get="/groups-grid?page={{ page.number + 1 }}" hx-target="#groups-wrap" {% if not page.has_next %}disabled{% endif %}>Next &rarr;</button>
+</nav>
+{% endif %}

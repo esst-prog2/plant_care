@@ -48,14 +48,6 @@ button.danger { color: var(--red); border-color: var(--red); }
   .card img { flex: none; aspect-ratio: 4 / 3; }
 }
 @media (max-width: 560px) { .grid { grid-template-columns: 1fr; } }
-/* The groups grid is not paginated, so it grows downward instead of fitting a fixed 2 rows. */
-.groups-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
-.groups-grid .card img { flex: none; aspect-ratio: 2 / 1; }
-@media (max-width: 900px) {
-  .groups-grid { grid-template-columns: repeat(2, 1fr); }
-  .groups-grid .card img { aspect-ratio: 4 / 3; }
-}
-@media (max-width: 560px) { .groups-grid { grid-template-columns: 1fr; } }
 .card { display: flex; flex-direction: column; background: #fff; border: 1px solid var(--line); border-radius: 14px; overflow: hidden; cursor: pointer; min-height: 0; }
 .card.loading, .card.failed { cursor: default; }
 .card img { flex: 1; min-height: 0; width: 100%; object-fit: cover; display: block; background: var(--green-bg); }

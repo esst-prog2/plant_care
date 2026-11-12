@@ -384,3 +384,45 @@ def test_an_uploaded_cover_wins_over_a_preset_selected_at_the_same_time(client, 
     )
     updated = db.get_group(group.id)
     assert updated.photo is not None and updated.photo.startswith("/photos/group-")
+
+
+# --- groups grid pagination ------------------------------------------------------------
+
+
+def test_groups_grid_paginates_at_6_per_page(client, db):
+    for i in range(6):
+        db.create_group(f"Group{i}")
+    # "All" + 6 groups = 7 entries -> page 1 has 6, page 2 has 1
+    page1 = client.get("/").text
+    assert _card_count(page1) == 6 and "Page 1 of 2" in page1
+    page2 = client.get("/groups-grid", params={"page": 2}).text
+    assert _card_count(page2) == 1 and "Page 2 of 2" in page2
+
+
+def test_creating_a_group_that_overflows_shows_the_page_it_landed_on(client, db):
+    for i in range(5):
+        db.create_group(f"Group{i}")
+    # "All" + 5 groups = 6 entries, exactly fills page 1
+    response = client.post("/groups", data={"name": "Overflow"})
+    assert "Page 2 of 2" in response.text and "Overflow" in response.text
+
+
+def test_deleting_a_group_on_page_2_stays_on_page_2(client, db):
+    groups = [db.create_group(f"Group{i}") for i in range(7)]
+    target = groups[-1]  # the 8th overall entry ("All" + 7), lands on page 2
+    response = client.post(f"/groups/{target.id}/delete", data={"page": "2"})
+    assert "Page 2 of 2" in response.text
+
+
+def test_renaming_a_group_on_page_2_stays_on_page_2(client, db):
+    groups = [db.create_group(f"Group{i}") for i in range(7)]
+    target = groups[-1]
+    response = client.post(f"/groups/{target.id}/rename", data={"name": "Renamed", "page": "2"})
+    assert "Page 2 of 2" in response.text and "Renamed" in response.text
+
+
+def test_all_group_rename_keeps_the_current_page(client, db):
+    for i in range(7):
+        db.create_group(f"Group{i}")
+    response = client.post("/groups/all/rename", data={"name": "Everything", "page": "2"})
+    assert "Page 2 of 2" in response.text

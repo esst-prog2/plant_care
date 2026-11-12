@@ -2,7 +2,7 @@
   <div class="dialog">
     <button type="button" class="close" aria-label="Close" onclick="this.closest('.overlay').remove()">&times;</button>
     <h2>{{ 'Rename group' if is_all else 'Edit group' }}</h2>
-    <form hx-post="{{ rename_url }}" hx-target="#groups-wrap" hx-encoding="multipart/form-data">
+    <form hx-post="{{ rename_url }}" hx-target="#groups-wrap" hx-encoding="multipart/form-data" hx-include="#groups-page-input">
       <input type="text" name="name" value="{{ current_name }}" required autofocus>
       {% if not is_all %}
       {% include "_cover_picker.html" %}
