@@ -54,6 +54,35 @@
   .logo .leaf { display: inline-block; width: .85em; text-align: center; }
   .logo .leaf svg { width: 1em; height: 1em; vertical-align: -.16em; }
 
+  .jump-nav {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    gap: .5rem;
+    padding: .6rem 1.5rem;
+    overflow-x: auto;
+    background: rgba(246, 248, 245, .92);
+    backdrop-filter: blur(6px);
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+  .jump-nav a {
+    flex: none;
+    padding: .4rem .9rem;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: #fff;
+    color: var(--ink);
+    text-decoration: none;
+    font-size: .85rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .jump-nav a:hover, .jump-nav a:focus-visible { border-color: var(--green); color: var(--green); }
+
+  section[id] { scroll-margin-top: 4.5rem; }
+
   main { max-width: 920px; margin: 0 auto; padding: 0 1.5rem 4rem; }
 
   .hero {
@@ -96,6 +125,89 @@
     color: var(--muted);
     font-size: .85rem;
     margin-top: .5rem;
+  }
+
+  .demo-card {
+    display: flex;
+    gap: 1.25rem;
+    align-items: center;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 1.1rem;
+    margin-top: 1.5rem;
+  }
+  .demo-media {
+    width: 84px;
+    height: 84px;
+    flex: none;
+    background: var(--green-bg);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .demo-media svg { width: 54px; height: 54px; }
+  .demo-body h3 { margin: 0 0 .5rem; font-size: 1.1rem; }
+  .demo-status { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; }
+  .demo-badge {
+    padding: .35rem .8rem;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: .85rem;
+    background: var(--red-bg);
+    color: var(--red);
+    transition: background .3s, color .3s;
+  }
+  .demo-badge.ok { background: var(--green-bg); color: var(--green); }
+  .demo-watered-btn {
+    padding: .4rem .9rem;
+    border-radius: 8px;
+    border: 1px solid var(--green);
+    background: var(--green);
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: .85rem;
+  }
+  .demo-watered-btn:disabled { opacity: .5; cursor: default; }
+  .demo-feedback {
+    margin-top: 1rem;
+    background: var(--green-bg);
+    border-radius: 14px;
+    padding: 1rem 1.25rem;
+  }
+  .demo-feedback[hidden] { display: none; }
+  .demo-feedback p.prompt { margin: 0 0 .6rem; font-weight: 600; }
+  .demo-feedback-choices { display: flex; gap: .5rem; flex-wrap: wrap; }
+  .demo-feedback-choices button {
+    padding: .4rem .8rem;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: #fff;
+    cursor: pointer;
+    font-size: .85rem;
+  }
+  .demo-feedback-choices button:disabled { opacity: .5; cursor: default; }
+  .demo-result { margin-top: .75rem; }
+  .demo-result[hidden] { display: none; }
+  .demo-reset {
+    margin-top: .75rem;
+    background: none;
+    border: none;
+    color: var(--green);
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: .85rem;
+    padding: 0;
+    display: block;
+  }
+  .demo-reset[hidden] { display: none; }
+  .demo-tag {
+    display: inline-block;
+    font-size: .8rem;
+    color: var(--muted);
+    margin-top: .6rem;
   }
 
   .feature {
@@ -158,6 +270,30 @@
     background: var(--green);
   }
 
+  .details-shot {
+    width: 100%;
+    max-width: 600px;
+    border-radius: 14px;
+    border: 1px solid var(--line);
+    display: block;
+    margin-top: 1.5rem;
+    background: #fff;
+    padding: 1rem 1.25rem;
+  }
+
+  .code-wrap { position: relative; }
+  .copy-btn {
+    position: absolute;
+    top: .6rem;
+    right: .6rem;
+    font-size: .8rem;
+    padding: .3rem .7rem;
+    border-radius: 6px;
+    border: 1px solid var(--line);
+    background: #fff;
+    cursor: pointer;
+  }
+  .copy-btn:hover, .copy-btn:focus-visible { border-color: var(--green); color: var(--green); }
   .try-it pre {
     background: #fff;
     border: 1px solid var(--line);
@@ -186,6 +322,13 @@
 <header class="top">
   <span class="logo" aria-hidden="true">plant<span class="leaf"><svg viewBox="0 0 26 26" fill="none"><path d="M13 23C13 23 6 20.5 6 13.5C6 8.5 9.5 5 13 3C16.5 5 20 8.5 20 13.5C20 20.5 13 23 13 23Z" fill="currentColor"/><path d="M13 23V9" stroke="#1d4a24" stroke-width="1.4" stroke-linecap="round"/></svg></span><span class="care">care</span></span>
 </header>
+<nav class="jump-nav" aria-label="Jump to section">
+  <a href="#demo">Try it here</a>
+  <a href="#calendar">Calendar</a>
+  <a href="#estimate">Estimate</a>
+  <a href="#details">Full details</a>
+  <a href="#try-it">Install</a>
+</nav>
 
 <main>
   <section class="hero">
@@ -199,7 +342,38 @@
     <p class="caption">The landing page — every room is its own group, with its own cover.</p>
   </section>
 
-  <section class="block feature">
+  <section class="block" id="demo">
+    <h2 style="font-size:1.3rem;margin:0 0 .5rem;">Try the actual interaction</h2>
+    <p>This is running live in your browser, not connected to any server — but it's the exact flow the real app uses when a plant is overdue.</p>
+    <div class="demo-card">
+      <div class="demo-media" aria-hidden="true">
+        <svg viewBox="0 0 200 140">
+          <path d="M100 118 C100 90 100 64 100 36" stroke="#1d4a24" stroke-width="5" fill="none" stroke-linecap="round"/>
+          <path d="M100 100 C70 100 50 78 46 48 C76 48 96 64 100 100 Z" fill="#2f7d3a"/>
+          <path d="M100 90 C130 90 150 68 154 38 C124 38 104 54 100 90 Z" fill="#4d8b57"/>
+        </svg>
+      </div>
+      <div class="demo-body">
+        <h3>Pilea</h3>
+        <div class="demo-status">
+          <span class="demo-badge overdue" id="demo-badge">Watering: 2 days overdue</span>
+          <button type="button" class="demo-watered-btn" id="demo-watered-btn">Watered</button>
+        </div>
+      </div>
+    </div>
+    <div class="demo-feedback" id="demo-feedback" hidden>
+      <p class="prompt">How did it go?</p>
+      <div class="demo-feedback-choices" id="demo-feedback-choices">
+        <button type="button" data-choice="wet" data-days="9">Soil was still wet</button>
+        <button type="button" data-choice="drooping" data-days="5">Leaf was drooping</button>
+        <button type="button" data-choice="on_time" data-days="7">Right on time</button>
+      </div>
+      <p class="demo-result" id="demo-result" hidden></p>
+    </div>
+    <button type="button" class="demo-reset" id="demo-reset" hidden>↺ Try it again</button>
+  </section>
+
+  <section class="block feature" id="calendar">
     <div class="feature-text">
       <h2>A reminder on the calendar you already have open</h2>
       <p>Watering reminders aren't another notification from another app you'll eventually mute. Each plant gets real, all-day Google Calendar to-dos — the same calendar on your phone. Tick one off there, and plant_care picks it up and moves the countdown forward on its own.</p>
@@ -211,7 +385,7 @@
     </div>
   </section>
 
-  <section class="block feature">
+  <section class="block feature" id="estimate">
     <div class="feature-text">
       <h2>A watering estimate that's actually about your plant</h2>
       <p>Most apps give every Monstera the same number. plant_care starts from three quick questions about where the plant actually sits — its light, the room's warmth, the pot it's in — and then keeps adjusting from what you report after watering: still wet, drooping, or right on time.</p>
@@ -220,6 +394,13 @@
       <img src="images/personalized-estimate.png" alt="The add-plant form asking about light, warmth and pot material to fine-tune the starting watering estimate">
       <p class="caption">Three optional questions at add time — skip them and plant_care falls back to a sensible default instead.</p>
     </div>
+  </section>
+
+  <section class="block" id="details">
+    <h2 style="font-size:1.3rem;margin:0 0 .5rem;">Every plant's full picture</h2>
+    <p class="lede">Light, a watering estimate, toxicity, humidity, and a propagation tip — all filled in from a single add, no extra lookups.</p>
+    <img class="details-shot" src="images/plant-details.png" alt="Monstera's full details view: light, watering estimate, toxicity (Toxic to pets), humidity, and propagation instructions">
+    <p class="caption">Toxicity is the one field that's never a guess — it's copied from the ASPCA's own published classification.</p>
   </section>
 
   <section class="block">
@@ -231,10 +412,12 @@
     </ul>
   </section>
 
-  <section class="block try-it">
+  <section class="block try-it" id="try-it">
     <h2 style="font-size:1.3rem;margin:0 0 .75rem;">How to try it</h2>
     <p>plant_care runs locally — there's no hosted demo yet. Clone it and run it on your own machine:</p>
-    <pre><code>git clone https://github.com/esst-prog2/plant_care.git
+    <div class="code-wrap">
+      <button type="button" class="copy-btn" data-copy-target="install-cmd">Copy</button>
+      <pre><code id="install-cmd">git clone https://github.com/esst-prog2/plant_care.git
 cd plant_care
 python -m venv .venv
 
@@ -245,6 +428,7 @@ source .venv/bin/activate
 
 pip install -r requirements.txt
 python run.py</code></pre>
+    </div>
     <p>Then open <code>http://127.0.0.1:8000</code>.</p>
   </section>
 </main>
@@ -269,6 +453,66 @@ python run.py</code></pre>
     }, { threshold: .4 });
     io.observe(detail);
   }
+
+  // Interactive "Watered" demo: client-side only, mirrors the real
+  // watered -> feedback -> adjusted-estimate flow. No network calls.
+  (function () {
+    var wateredBtn = document.getElementById('demo-watered-btn');
+    var badge = document.getElementById('demo-badge');
+    var feedback = document.getElementById('demo-feedback');
+    var choices = document.getElementById('demo-feedback-choices');
+    var result = document.getElementById('demo-result');
+    var resetBtn = document.getElementById('demo-reset');
+    if (!wateredBtn) return;
+
+    function reset() {
+      badge.textContent = 'Watering: 2 days overdue';
+      badge.classList.remove('ok');
+      badge.classList.add('overdue');
+      wateredBtn.disabled = false;
+      feedback.hidden = true;
+      result.hidden = true;
+      resetBtn.hidden = true;
+      Array.prototype.forEach.call(choices.querySelectorAll('button'), function (b) {
+        b.disabled = false;
+      });
+    }
+
+    wateredBtn.addEventListener('click', function () {
+      badge.textContent = '7 days left';
+      badge.classList.remove('overdue');
+      badge.classList.add('ok');
+      wateredBtn.disabled = true;
+      feedback.hidden = false;
+    });
+
+    choices.addEventListener('click', function (e) {
+      var btn = e.target.closest('button[data-choice]');
+      if (!btn) return;
+      Array.prototype.forEach.call(choices.querySelectorAll('button'), function (b) {
+        b.disabled = true;
+      });
+      result.textContent = 'Got it — next time, the estimate moves to ' + btn.dataset.days + ' days instead of 7.';
+      result.hidden = false;
+      resetBtn.hidden = false;
+    });
+
+    resetBtn.addEventListener('click', reset);
+  })();
+
+  // Copy-to-clipboard for the install command. No-op without JS or the
+  // Clipboard API — the command is still selectable by hand either way.
+  Array.prototype.forEach.call(document.querySelectorAll('.copy-btn'), function (btn) {
+    btn.addEventListener('click', function () {
+      var target = document.getElementById(btn.getAttribute('data-copy-target'));
+      if (!target || !navigator.clipboard) return;
+      navigator.clipboard.writeText(target.textContent).then(function () {
+        var original = btn.textContent;
+        btn.textContent = 'Copied!';
+        setTimeout(function () { btn.textContent = original; }, 1500);
+      }).catch(function () {});
+    });
+  });
 </script>
 </body>
 </html>
