@@ -5,3 +5,6 @@ __pycache__/
 .env
 plant_care.db
 photos/
+.agents/
+.claude/skills/impeccable/
+skills-lock.json
