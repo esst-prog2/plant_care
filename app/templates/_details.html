@@ -1,5 +1,5 @@
 <div class="overlay" role="dialog" aria-modal="true" aria-label="{{ card.plant.name }}">
-  <div class="dialog">
+  <div class="dialog dialog-wide">
     <button type="button" class="close" aria-label="Close" onclick="this.closest('.overlay').remove()">&times;</button>
     <img class="hero" src="{{ card.plant.photo or '/static/placeholder.svg' }}" alt="">
     <form class="photo-upload" hx-post="/plants/{{ card.plant.id }}/photo" hx-target="#modal" hx-encoding="multipart/form-data">
