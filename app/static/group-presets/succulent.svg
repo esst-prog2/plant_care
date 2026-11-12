@@ -1,5 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 140" role="img" aria-label="Succulent">
   <rect width="200" height="140" fill="#e3f3e5"/>
+  <g id="art" transform="translate(48.28 29.66) scale(0.5172)">
   <g fill="#4d8b57">
     <ellipse cx="100" cy="46" rx="16" ry="26"/>
     <ellipse cx="128" cy="62" rx="16" ry="26" transform="rotate(60 128 62)"/>
@@ -9,4 +10,5 @@
     <ellipse cx="72" cy="62" rx="16" ry="26" transform="rotate(300 72 62)"/>
   </g>
   <circle cx="100" cy="78" r="16" fill="#2f7d3a"/>
+  </g>
 </svg>

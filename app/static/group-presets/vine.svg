@@ -1,5 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 140" role="img" aria-label="Vine">
   <rect width="200" height="140" fill="#e3f3e5"/>
+  <g id="art" transform="translate(10.79 33.7) scale(0.8921)">
   <path d="M30 40 C55 60 55 60 80 40 C105 20 105 20 130 40 C155 60 155 60 175 42"
         stroke="#1d4a24" stroke-width="5" fill="none" stroke-linecap="round"/>
   <g fill="#2f7d3a">
@@ -10,5 +11,6 @@
   <g fill="#4d8b57">
     <ellipse cx="80" cy="40" rx="12" ry="18" transform="rotate(40 80 40)"/>
     <ellipse cx="130" cy="40" rx="12" ry="18" transform="rotate(-40 130 40)"/>
+  </g>
   </g>
 </svg>
