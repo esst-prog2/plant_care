@@ -105,6 +105,7 @@
   @media (max-width: 760px) {
     .feature { grid-template-columns: 1fr; }
     .feature:nth-of-type(2) .feature-media { order: 0; }
+    .try-it pre { white-space: pre-wrap; word-break: break-word; overflow-x: visible; }
   }
 
   .also {
@@ -206,7 +207,12 @@
     <pre><code>git clone https://github.com/esst-prog2/plant_care.git
 cd plant_care
 python -m venv .venv
-.venv\Scripts\activate   # or: source .venv/bin/activate
+
+# Windows:
+.venv\Scripts\activate
+# macOS / Linux:
+source .venv/bin/activate
+
 pip install -r requirements.txt
 python run.py</code></pre>
     <p>Then open <code>http://127.0.0.1:8000</code>.</p>
