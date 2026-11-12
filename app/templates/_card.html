@@ -7,7 +7,12 @@
   <img src="{{ card.plant.photo or '/static/placeholder.svg' }}" alt="">
   <div class="card-body">
     <h3>{{ card.plant.name }}</h3>
-    <span class="badge {{ card.status }}">{{ card.label }}</span>
+    <div class="card-status">
+      <span class="badge {{ card.status }}">{{ card.label }}</span>
+      {% if card.is_due %}
+      <button type="button" class="primary" onclick="event.stopPropagation()" hx-post="/plants/{{ card.plant.id }}/watered" hx-target="#modal">Watered</button>
+      {% endif %}
+    </div>
     {% if card.plant.data_source == 'local-fallback' %}<small class="offline">offline data</small>{% endif %}
   </div>
 </article>
