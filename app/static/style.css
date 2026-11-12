@@ -58,6 +58,8 @@ button.danger { color: var(--red); border-color: var(--red); }
 .badge.due, .badge.overdue { background: var(--red-bg); color: var(--red); }
 .badge.loading { background: #eee; color: var(--muted); }
 .badge.count { background: var(--green-bg); color: var(--green); }
+.card-status { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
+.card-status button { padding: .35rem .8rem; font-size: .9rem; }
 .group-cover-link { display: flex; flex-direction: column; flex: 1; min-height: 0; color: inherit; text-decoration: none; }
 .group-name-row { display: flex; align-items: center; gap: .75rem; }
 .group-card .card-body h3 { flex: none; margin: 0; font-size: 1.6rem; color: var(--green); }

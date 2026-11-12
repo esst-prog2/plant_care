@@ -322,6 +322,20 @@ def test_cards_show_green_due_and_overdue_states(client, db):
     assert 'badge overdue">Watering: 2 days overdue' in html
 
 
+def test_due_and_overdue_cards_show_a_watered_button(client, db):
+    due = add_ready(db, "DueToday", 7, TODAY - timedelta(days=7))
+    overdue = add_ready(db, "Late", 7, TODAY - timedelta(days=9))
+    html = client.get("/groups/all").text
+    assert f'hx-post="/plants/{due.id}/watered"' in html
+    assert f'hx-post="/plants/{overdue.id}/watered"' in html
+
+
+def test_an_ok_card_has_no_watered_button(client, db):
+    fresh = add_ready(db, "Fresh", 7, TODAY - timedelta(days=4))
+    html = client.get("/groups/all").text
+    assert f'hx-post="/plants/{fresh.id}/watered"' not in html
+
+
 def test_watered_resets_countdown_turns_green_and_persists(client, db, make_client):
     plant = add_ready(db, "Pilea", 7, TODAY - timedelta(days=7))
     assert "Due today!" in client.get("/groups/all").text
