@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 140" role="img" aria-label="Fern">
+  <rect width="200" height="140" fill="#e3f3e5"/>
+  <g id="art" transform="translate(37.5 22.5) scale(0.625)">
+  <path d="M100 124 C100 90 100 56 100 28" stroke="#1d4a24" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <g stroke="#2f7d3a" stroke-width="4" stroke-linecap="round" fill="none">
+    <path d="M100 100 C84 92 72 94 62 102"/>
+    <path d="M100 100 C116 92 128 94 138 102"/>
+    <path d="M100 82 C86 75 76 77 68 84"/>
+    <path d="M100 82 C114 75 124 77 132 84"/>
+    <path d="M100 64 C88 58 80 60 74 66"/>
+    <path d="M100 64 C112 58 120 60 126 66"/>
+    <path d="M100 46 C92 41 86 43 82 48"/>
+    <path d="M100 46 C108 41 114 43 118 48"/>
+  </g>
+  </g>
+</svg>

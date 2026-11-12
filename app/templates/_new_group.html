@@ -2,8 +2,12 @@
   <div class="dialog">
     <button type="button" class="close" aria-label="Close" onclick="this.closest('.overlay').remove()">&times;</button>
     <h2>New group</h2>
-    <form hx-post="/groups" hx-target="#groups-wrap">
-      <input type="text" name="name" placeholder="e.g. Living room" required autofocus>
+    <form hx-post="/groups" hx-target="#groups-wrap" hx-encoding="multipart/form-data">
+      <input type="text" name="name" placeholder="e.g. Living room" value="{{ name or '' }}" required autofocus>
+      {% include "_cover_picker.html" %}
+      {% if photo_error %}
+      <p class="notice">{{ photo_error }}</p>
+      {% endif %}
       <div class="actions">
         <button type="submit" class="primary">Create</button>
       </div>

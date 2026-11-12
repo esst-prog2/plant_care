@@ -34,7 +34,7 @@ def config(tmp_path) -> Config:
 
 @pytest.fixture
 def db(config) -> Database:
-    database = Database(config.db_path)
+    database = Database(config.db_path, config.photos_dir)
     database.init()
     return database
 

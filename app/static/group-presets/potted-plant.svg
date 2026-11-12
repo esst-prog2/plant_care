@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 140" role="img" aria-label="Potted plant">
+  <rect width="200" height="140" fill="#e3f3e5"/>
+  <g id="art" transform="translate(36.17 19.57) scale(0.6383)">
+  <path d="M100 100 C100 78 100 60 100 44" stroke="#1d4a24" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <path d="M100 78 C78 78 62 64 58 44 C82 44 98 56 100 78 Z" fill="#2f7d3a"/>
+  <path d="M100 66 C122 66 138 52 142 32 C118 32 102 44 100 66 Z" fill="#4d8b57"/>
+  <path d="M74 100 H126 L118 126 H82 Z" fill="#b5835a"/>
+  </g>
+</svg>
