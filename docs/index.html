@@ -36,17 +36,23 @@
   a:focus-visible, button:focus-visible { outline: 3px solid var(--green); outline-offset: 2px; }
 
   header.top {
+    position: sticky;
+    top: 0;
+    z-index: 10;
     display: flex;
     align-items: center;
     gap: 1rem;
-    padding: 1.25rem 1.5rem;
-    max-width: 920px;
-    margin: 0 auto;
+    padding: .75rem 1.5rem;
+    background: rgba(246, 248, 245, .92);
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid var(--line);
     flex-wrap: wrap;
   }
   .logo {
     display: inline-flex;
     align-items: center;
+    flex: none;
+    order: 3;
     font-size: 1.3rem;
     font-weight: 800;
     letter-spacing: -0.01em;
@@ -57,16 +63,12 @@
   .logo .leaf svg { width: 1em; height: 1em; vertical-align: -.16em; }
 
   .jump-nav {
-    position: sticky;
-    top: 0;
-    z-index: 10;
     display: flex;
     gap: .5rem;
-    padding: .6rem 1.5rem;
     overflow-x: auto;
-    background: rgba(246, 248, 245, .92);
-    backdrop-filter: blur(6px);
-    border-bottom: 1px solid var(--line);
+    flex: 1 1 auto;
+    min-width: 0;
+    order: 1;
   }
   .jump-nav a {
     flex: none;
@@ -109,6 +111,7 @@
   .tip-rotator {
     flex: 1;
     min-width: 0;
+    order: 2;
     margin: 0;
     font-style: italic;
     font-size: .9rem;
@@ -119,7 +122,9 @@
   }
   .tip-rotator:hover, .tip-rotator:focus-visible { color: var(--green); }
   @media (max-width: 560px) {
-    .tip-rotator { order: 3; flex-basis: 100%; margin-top: .3rem; }
+    .tip-rotator { order: 4; flex-basis: 100%; margin-top: .3rem; text-align: left; }
+    .jump-nav { order: 1; flex-basis: 100%; }
+    .logo { order: 2; }
   }
 
   section.block {
@@ -384,17 +389,17 @@
 </head>
 <body>
 <header class="top">
-  <span class="logo" aria-hidden="true">plant<span class="leaf"><svg viewBox="0 0 26 26" fill="none"><path d="M13 23C13 23 6 20.5 6 13.5C6 8.5 9.5 5 13 3C16.5 5 20 8.5 20 13.5C20 20.5 13 23 13 23Z" fill="currentColor"/><path d="M13 23V9" stroke="#1d4a24" stroke-width="1.4" stroke-linecap="round"/></svg></span><span class="care">care</span></span>
+  <nav class="jump-nav" aria-label="Jump to section">
+    <a href="#demo">Try it here</a>
+    <a href="#upcoming">Upcoming</a>
+    <a href="#calendar">Calendar</a>
+    <a href="#estimate">Estimate</a>
+    <a href="#details">Full details</a>
+    <a href="#try-it">Install</a>
+  </nav>
   <p class="tip-rotator" id="tip-rotator" role="button" tabindex="0" aria-label="A new plant-care tip appears here every day in the real app. Tap for another." aria-live="polite">Every leaf you keep alive is a small victory.</p>
+  <span class="logo" aria-hidden="true">plant<span class="leaf"><svg viewBox="0 0 26 26" fill="none"><path d="M13 23C13 23 6 20.5 6 13.5C6 8.5 9.5 5 13 3C16.5 5 20 8.5 20 13.5C20 20.5 13 23 13 23Z" fill="currentColor"/><path d="M13 23V9" stroke="#1d4a24" stroke-width="1.4" stroke-linecap="round"/></svg></span><span class="care">care</span></span>
 </header>
-<nav class="jump-nav" aria-label="Jump to section">
-  <a href="#demo">Try it here</a>
-  <a href="#upcoming">Upcoming</a>
-  <a href="#calendar">Calendar</a>
-  <a href="#estimate">Estimate</a>
-  <a href="#details">Full details</a>
-  <a href="#try-it">Install</a>
-</nav>
 
 <main>
   <section class="hero">
