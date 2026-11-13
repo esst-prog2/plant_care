@@ -10,8 +10,17 @@
 }
 * { box-sizing: border-box; }
 body { margin: 0; font-family: system-ui, "Segoe UI", sans-serif; color: var(--ink); background: var(--bg); }
-.topbar { display: flex; align-items: center; gap: 1rem; padding: 1rem 1.5rem; }
-.topbar h1 { margin: 0 0 0 auto; }
+.app-bar { display: flex; align-items: center; gap: 1rem; padding: 1rem 1.5rem; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.app-bar h1 { margin: 0; }
+.app-nav {
+  display: flex; gap: .2rem; margin-left: auto; border: 1px solid var(--line); border-radius: 999px; padding: .2rem;
+}
+.app-nav a {
+  padding: .45rem 1rem; border-radius: 999px; font-size: .95rem; font-weight: 600; color: var(--muted); text-decoration: none;
+}
+.app-nav a:hover, .app-nav a:focus-visible { color: var(--green); background: var(--green-bg); }
+.app-nav a.active, .app-nav a.active:hover, .app-nav a.active:focus-visible { background: var(--green); color: #fff; }
+.page-toolbar { display: flex; align-items: center; gap: 1rem; padding: 1rem 1.5rem; flex-wrap: wrap; }
 .logo {
   display: inline-flex;
   align-items: center;
@@ -102,17 +111,6 @@ input[type=file] {
 .photo-upload label, .move-group label { display: block; font-size: .85rem; color: var(--muted); margin-bottom: .3rem; }
 .photo-upload input[type=file] { display: block; margin-top: .3rem; }
 .photo-upload button { margin-top: .5rem; }
-.back {
-  display: inline-flex; align-items: center; justify-content: center; width: 2.25rem; height: 2.25rem;
-  border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--green);
-  text-decoration: none; font-size: 1.2rem; flex: none;
-}
-.back:hover, .back:focus-visible { background: var(--green-bg); }
-.nav-link {
-  display: inline-flex; align-items: center; padding: .5rem 1rem; border: 1px solid var(--line);
-  border-radius: 8px; background: #fff; color: var(--ink); text-decoration: none; font: inherit;
-}
-.nav-link:hover, .nav-link:focus-visible { border-color: var(--green); color: var(--green); }
 .upcoming-title { margin: 1rem 0 1rem; }
 .upcoming-list { list-style: none; padding: 0; margin: 0; display: grid; gap: .6rem; }
 .upcoming-row {
