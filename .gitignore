@@ -7,4 +7,15 @@ plant_care.db
 photos/
 .agents/
 .claude/skills/impeccable/
+.claude/skills/figma/
+.claude/skills/hyperframes/
+.claude/skills/hyperframes-cli/
+.claude/skills/hyperframes-registry/
+.claude/skills/media-use/
+.claude/skills/remotion-to-hyperframes/
+.claude/skills/reverse-any-video/
+.claude/skills/slideshow/
+.claude/skills/style-sampling/
+agent/
+data/skills/
 skills-lock.json
