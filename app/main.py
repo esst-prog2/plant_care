@@ -162,6 +162,21 @@ def create_app(
                 due += 1
         return due
 
+    def _upcoming_rows(group_id: int | None) -> list[dict]:
+        today = clock()
+        plants = db.list_plants(group_id=group_id)
+        group_names = {g.id: g.name for g in db.list_groups()}
+        all_name = db.get_setting(ALL_GROUP_NAME_KEY, "All")
+        rows = []
+        for p in plants:
+            card = card_view(p, today)
+            if card["loading"]:
+                continue
+            card["group_name"] = group_names.get(p.group_id, all_name)
+            rows.append(card)
+        rows.sort(key=lambda c: c["days"])
+        return rows
+
     def _groups_page(page: int):
         all_plants = db.list_plants()
         entries = [{
@@ -372,6 +387,24 @@ def create_app(
     @app.get("/groups-grid", response_class=HTMLResponse)
     def groups_grid_fragment(request: Request, page: int = 1):
         return groups_grid(request, page)
+
+    @app.get("/upcoming", response_class=HTMLResponse)
+    def upcoming(request: Request, view_group_id: str = "all"):
+        group_id = _parse_view_group_id(view_group_id)
+        return render(
+            request,
+            "upcoming.html",
+            rows=_upcoming_rows(group_id),
+            view_group_id=view_group_id,
+            current_group_id=group_id,
+            groups=db.list_groups(),
+            all_name=db.get_setting(ALL_GROUP_NAME_KEY, "All"),
+        )
+
+    @app.get("/upcoming-rows", response_class=HTMLResponse)
+    def upcoming_rows_fragment(request: Request, view_group_id: str = "all"):
+        group_id = _parse_view_group_id(view_group_id)
+        return render(request, "_upcoming_rows.html", rows=_upcoming_rows(group_id))
 
     @app.get("/add", response_class=HTMLResponse)
     def add_panel(request: Request, view_group_id: str = "all"):

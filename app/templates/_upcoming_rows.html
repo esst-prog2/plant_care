@@ -1,0 +1,13 @@
+{% if rows %}
+<ul class="upcoming-list">
+  {% for row in rows %}
+  <li class="upcoming-row" hx-get="/plants/{{ row.plant.id }}" hx-target="#modal" hx-trigger="click, keyup[key=='Enter']" tabindex="0" role="button">
+    <span class="upcoming-name">{{ row.plant.name }}</span>
+    <span class="upcoming-group">{{ row.group_name }}</span>
+    <span class="badge {{ row.status }}">{{ row.label }}</span>
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+<p class="empty">All caught up! Nothing needs watering right now.</p>
+{% endif %}

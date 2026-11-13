@@ -1,16 +1,19 @@
 {% extends "base.html" %}
 {% block content %}
-<header class="topbar">
-  <a href="/" class="back" aria-label="Back to groups">&larr;</a>
-  <select aria-label="Switch group" onchange="location.href=this.value">
-    <option value="/groups/all" {% if current_group_id is none %}selected{% endif %}>{{ all_name }}</option>
-    {% for g in groups %}
-    <option value="/groups/{{ g.id }}" {% if current_group_id == g.id %}selected{% endif %}>{{ g.name }}</option>
-    {% endfor %}
-  </select>
+{% set active_nav = "groups" %}
+{% include "_header.html" %}
+<div class="page-toolbar">
+  <span class="breadcrumb">
+    <a href="/">Groups</a><span class="sep">/</span>
+    <select class="breadcrumb-select" aria-label="Switch group" onchange="location.href=this.value">
+      <option value="/groups/all" {% if current_group_id is none %}selected{% endif %}>{{ all_name }}</option>
+      {% for g in groups %}
+      <option value="/groups/{{ g.id }}" {% if current_group_id == g.id %}selected{% endif %}>{{ g.name }}</option>
+      {% endfor %}
+    </select>
+  </span>
   <button class="primary" hx-get="/add?view_group_id={{ view_group_id }}" hx-target="#modal">+ Add New Plant</button>
-  <h1><a href="/" class="logo" aria-label="plant_care – kezdőlap">plant<span class="leaf"><svg viewBox="0 0 26 26" fill="none" aria-hidden="true"><path d="M13 23C13 23 6 20.5 6 13.5C6 8.5 9.5 5 13 3C16.5 5 20 8.5 20 13.5C20 20.5 13 23 13 23Z" fill="currentColor"/><path d="M13 23V9" stroke="#1d4a24" stroke-width="1.4" stroke-linecap="round"/></svg></span><span class="care">care</span></a></h1>
-</header>
+</div>
 <main id="grid-wrap">
   {% include "_grid.html" %}
 </main>

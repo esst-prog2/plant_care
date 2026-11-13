@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+{% set active_nav = "upcoming" %}
+{% include "_header.html" %}
+<div class="page-toolbar">
+  <select aria-label="Filter by group" onchange="location.href=this.value">
+    <option value="/upcoming?view_group_id=all" {% if current_group_id is none %}selected{% endif %}>{{ all_name }}</option>
+    {% for g in groups %}
+    <option value="/upcoming?view_group_id={{ g.id }}" {% if current_group_id == g.id %}selected{% endif %}>{{ g.name }}</option>
+    {% endfor %}
+  </select>
+  <input type="hidden" id="upcoming-group-input" name="view_group_id" value="{{ view_group_id }}">
+</div>
+<main>
+  <h2 class="upcoming-title">Upcoming</h2>
+  <div id="upcoming-wrap">
+    {% include "_upcoming_rows.html" %}
+  </div>
+</main>
+<div id="upcoming-refresher" hx-get="/upcoming-rows" hx-trigger="refreshGrid from:body" hx-include="#upcoming-group-input" hx-target="#upcoming-wrap"></div>
+{% endblock %}
