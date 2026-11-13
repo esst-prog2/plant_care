@@ -105,6 +105,26 @@
     font-size: .9rem;
     max-width: 60ch;
   }
+  .tip-intro {
+    margin: 1.5rem 0 .4rem;
+    font-size: .85rem;
+    color: var(--muted);
+  }
+  .tip-rotator {
+    margin: 0;
+    font-style: italic;
+    font-size: 1.05rem;
+    color: var(--ink);
+    cursor: pointer;
+    display: inline-block;
+    transition: opacity .25s, color .2s;
+  }
+  .tip-rotator:hover, .tip-rotator:focus-visible { color: var(--green); }
+  .tip-hint {
+    margin: .3rem 0 0;
+    font-size: .75rem;
+    color: var(--muted);
+  }
 
   section.block {
     padding: 3rem 0;
@@ -210,6 +230,53 @@
     color: var(--muted);
     margin-top: .6rem;
   }
+
+  .upcoming-demo-list {
+    list-style: none;
+    padding: 0;
+    margin: 1.5rem 0 0;
+    display: grid;
+    gap: .6rem;
+  }
+  .upcoming-demo-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: .75rem 1rem;
+    transition: opacity .25s;
+  }
+  .updemo-name { font-weight: 600; flex: 1; min-width: 0; }
+  .updemo-group { color: var(--muted); font-size: .9rem; flex: none; }
+  .updemo-badge {
+    padding: .3rem .8rem;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: .85rem;
+    background: var(--red-bg);
+    color: var(--red);
+    flex: none;
+  }
+  .updemo-badge.ok { background: var(--green-bg); color: var(--green); }
+  .updemo-water-btn {
+    padding: .35rem .8rem;
+    border-radius: 8px;
+    border: 1px solid var(--green);
+    background: var(--green);
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: .8rem;
+    flex: none;
+  }
+  @media (max-width: 560px) {
+    .upcoming-demo-row { flex-wrap: wrap; }
+    .updemo-group { order: 3; width: 100%; }
+    .updemo-water-btn { order: 4; width: 100%; margin-top: .25rem; }
+  }
+
 
   .feature {
     display: grid;
@@ -325,6 +392,7 @@
 </header>
 <nav class="jump-nav" aria-label="Jump to section">
   <a href="#demo">Try it here</a>
+  <a href="#upcoming">Upcoming</a>
   <a href="#calendar">Calendar</a>
   <a href="#estimate">Estimate</a>
   <a href="#details">Full details</a>
@@ -335,6 +403,9 @@
   <section class="hero">
     <h1>Water your houseplants on the calendar you already check.</h1>
     <p class="course-note">A semester project for an Advanced Programming course — a small, real houseplant tracker, built and shipped end to end: FastAPI, HTMX, SQLite.</p>
+    <p class="tip-intro">A different one of these greets you at the top of the app every day:</p>
+    <p class="tip-rotator" id="tip-rotator" role="button" tabindex="0" aria-live="polite">Every leaf you keep alive is a small victory.</p>
+    <p class="tip-hint">tap for another</p>
   </section>
 
   <section class="block">
@@ -374,6 +445,37 @@
     <button type="button" class="demo-reset" id="demo-reset" hidden>↺ Try it again</button>
   </section>
 
+  <section class="block" id="upcoming">
+    <h2 style="font-size:1.3rem;margin:0 0 .5rem;">Every room's watering, sorted into one list</h2>
+    <p>No need to open each room separately to see what's due. The Upcoming view lists every plant across every room, most overdue first — and it re-sorts the moment you water one. Try it:</p>
+    <ul class="upcoming-demo-list" id="upcoming-demo-list">
+      <li class="upcoming-demo-row" data-days="-2">
+        <span class="updemo-name">Pilea</span>
+        <span class="updemo-group">Living room</span>
+        <span class="updemo-badge overdue">Watering: 2 days overdue</span>
+        <button type="button" class="updemo-water-btn">Watered</button>
+      </li>
+      <li class="upcoming-demo-row" data-days="2">
+        <span class="updemo-name">Basil</span>
+        <span class="updemo-group">Kitchen</span>
+        <span class="updemo-badge ok">2 days left</span>
+      </li>
+      <li class="upcoming-demo-row" data-days="7">
+        <span class="updemo-name">Monstera</span>
+        <span class="updemo-group">Living room</span>
+        <span class="updemo-badge ok">7 days left</span>
+      </li>
+      <li class="upcoming-demo-row" data-days="16">
+        <span class="updemo-name">Snake plant</span>
+        <span class="updemo-group">Bedroom</span>
+        <span class="updemo-badge ok">16 days left</span>
+      </li>
+    </ul>
+    <button type="button" class="demo-reset" id="upcoming-demo-reset" hidden>↺ Reset the list</button>
+    <img class="landing-shot" src="images/upcoming-view.png" alt="The real Upcoming view: Pilea 2 days overdue, Basil 2 days left, Monstera 7 days left, Snake plant 16 days left, sorted soonest first across every room, filterable by room">
+    <p class="caption">The real thing — same sorting as the demo above, and filterable down to a single room.</p>
+  </section>
+
   <section class="block feature" id="calendar">
     <div class="feature-text">
       <h2>A reminder on the calendar you already have open</h2>
@@ -410,6 +512,7 @@
       <li>A plant's photo and short description come straight from Wikipedia the moment you add it — toxicity to pets is the one field pulled from the ASPCA's own list instead, because a wrong guess there matters more than a wrong guess anywhere else.</li>
       <li>Group your plants by room — pick one of 8 built-in cover icons, or upload your own photo for the whole group.</li>
       <li>Upload your own photo for any individual plant too, any time, replacing the automatic Wikipedia one.</li>
+      <li>A different plant-care tip greets you at the top of the app every day — the same ten you can tap through above, rotating automatically.</li>
     </ul>
   </section>
 
@@ -523,6 +626,81 @@ python run.py</code></pre>
     });
 
     resetBtn.addEventListener('click', reset);
+  })();
+
+  // Rotating daily tip: the same 10 messages the real app rotates through
+  // by calendar date, cycled here for a live taste of the feature. Auto-
+  // advances slowly, and is also directly clickable/keyboard-activatable.
+  (function () {
+    var tips = [
+      'Every leaf you keep alive is a small victory.',
+      "Plants don't rush — neither should you.",
+      'A little water today, a little more green tomorrow.',
+      'Your plants are rooting for you.',
+      'Consistency is the best fertilizer.',
+      'Even the toughest cactus appreciates a little care sometimes.',
+      'Slow growth is still growth.',
+      'A watered plant is a happy plant.',
+      'Take a breath — your plants are thriving because of you.',
+      'Small steps, deep roots.'
+    ];
+    var el = document.getElementById('tip-rotator');
+    if (!el) return;
+    var i = Math.floor(Math.random() * tips.length);
+
+    function show(next) {
+      el.style.opacity = '0';
+      setTimeout(function () {
+        i = next;
+        el.textContent = tips[i];
+        el.style.opacity = '1';
+      }, 200);
+    }
+
+    function advance() { show((i + 1) % tips.length); }
+
+    el.addEventListener('click', advance);
+    el.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); advance(); }
+    });
+    setInterval(advance, 6000);
+  })();
+
+  // Live "Upcoming" re-sort demo: client-side only. Watering the one
+  // overdue row flips its badge and re-sorts the list by days-left,
+  // mirroring the real Upcoming view's own sort + refresh behavior.
+  (function () {
+    var list = document.getElementById('upcoming-demo-list');
+    var resetBtn = document.getElementById('upcoming-demo-reset');
+    if (!list || !resetBtn) return;
+    var original = list.innerHTML;
+
+    list.addEventListener('click', function (e) {
+      var btn = e.target.closest('.updemo-water-btn');
+      if (!btn) return;
+      var row = btn.closest('.upcoming-demo-row');
+      row.style.opacity = '0';
+      setTimeout(function () {
+        var badge = row.querySelector('.updemo-badge');
+        badge.textContent = '7 days left';
+        badge.classList.remove('overdue');
+        badge.classList.add('ok');
+        row.dataset.days = '7';
+        btn.remove();
+
+        var rows = Array.prototype.slice.call(list.querySelectorAll('.upcoming-demo-row'));
+        rows.sort(function (a, b) { return parseInt(a.dataset.days, 10) - parseInt(b.dataset.days, 10); });
+        rows.forEach(function (r) { list.appendChild(r); });
+
+        row.style.opacity = '1';
+        resetBtn.hidden = false;
+      }, 250);
+    });
+
+    resetBtn.addEventListener('click', function () {
+      list.innerHTML = original;
+      resetBtn.hidden = true;
+    });
   })();
 
   // Copy-to-clipboard for the install command. No-op without JS or the
