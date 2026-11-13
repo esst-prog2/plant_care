@@ -36,15 +36,23 @@
   a:focus-visible, button:focus-visible { outline: 3px solid var(--green); outline-offset: 2px; }
 
   header.top {
+    position: sticky;
+    top: 0;
+    z-index: 10;
     display: flex;
     align-items: center;
-    padding: 1.25rem 1.5rem;
-    max-width: 920px;
-    margin: 0 auto;
+    gap: 1rem;
+    padding: .75rem 1.5rem;
+    background: rgba(246, 248, 245, .92);
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid var(--line);
+    flex-wrap: wrap;
   }
   .logo {
     display: inline-flex;
     align-items: center;
+    flex: none;
+    order: 3;
     font-size: 1.3rem;
     font-weight: 800;
     letter-spacing: -0.01em;
@@ -55,17 +63,12 @@
   .logo .leaf svg { width: 1em; height: 1em; vertical-align: -.16em; }
 
   .jump-nav {
-    position: sticky;
-    top: 0;
-    z-index: 10;
     display: flex;
     gap: .5rem;
-    padding: .6rem 1.5rem;
     overflow-x: auto;
-    background: rgba(246, 248, 245, .92);
-    backdrop-filter: blur(6px);
-    border-top: 1px solid var(--line);
-    border-bottom: 1px solid var(--line);
+    flex: 1 1 auto;
+    min-width: 0;
+    order: 1;
   }
   .jump-nav a {
     flex: none;
@@ -104,6 +107,24 @@
     color: var(--muted);
     font-size: .9rem;
     max-width: 60ch;
+  }
+  .tip-rotator {
+    flex: 1;
+    min-width: 0;
+    order: 2;
+    margin: 0;
+    font-style: italic;
+    font-size: .9rem;
+    color: var(--muted);
+    text-align: center;
+    cursor: pointer;
+    transition: opacity .25s, color .2s;
+  }
+  .tip-rotator:hover, .tip-rotator:focus-visible { color: var(--green); }
+  @media (max-width: 560px) {
+    .tip-rotator { order: 4; flex-basis: 100%; margin-top: .3rem; text-align: left; }
+    .jump-nav { order: 1; flex-basis: 100%; }
+    .logo { order: 2; }
   }
 
   section.block {
@@ -210,6 +231,53 @@
     color: var(--muted);
     margin-top: .6rem;
   }
+
+  .upcoming-demo-list {
+    list-style: none;
+    padding: 0;
+    margin: 1.5rem 0 0;
+    display: grid;
+    gap: .6rem;
+  }
+  .upcoming-demo-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: .75rem 1rem;
+    transition: opacity .25s;
+  }
+  .updemo-name { font-weight: 600; flex: 1; min-width: 0; }
+  .updemo-group { color: var(--muted); font-size: .9rem; flex: none; }
+  .updemo-badge {
+    padding: .3rem .8rem;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: .85rem;
+    background: var(--red-bg);
+    color: var(--red);
+    flex: none;
+  }
+  .updemo-badge.ok { background: var(--green-bg); color: var(--green); }
+  .updemo-water-btn {
+    padding: .35rem .8rem;
+    border-radius: 8px;
+    border: 1px solid var(--green);
+    background: var(--green);
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: .8rem;
+    flex: none;
+  }
+  @media (max-width: 560px) {
+    .upcoming-demo-row { flex-wrap: wrap; }
+    .updemo-group { order: 3; width: 100%; }
+    .updemo-water-btn { order: 4; width: 100%; margin-top: .25rem; }
+  }
+
 
   .feature {
     display: grid;
@@ -321,15 +389,17 @@
 </head>
 <body>
 <header class="top">
+  <nav class="jump-nav" aria-label="Jump to section">
+    <a href="#demo">Try it here</a>
+    <a href="#upcoming">Upcoming</a>
+    <a href="#calendar">Calendar</a>
+    <a href="#estimate">Estimate</a>
+    <a href="#details">Full details</a>
+    <a href="#try-it">Install</a>
+  </nav>
+  <p class="tip-rotator" id="tip-rotator" role="button" tabindex="0" aria-label="A new plant-care tip appears here every day in the real app. Tap for another." aria-live="polite">Every leaf you keep alive is a small victory.</p>
   <span class="logo" aria-hidden="true">plant<span class="leaf"><svg viewBox="0 0 26 26" fill="none"><path d="M13 23C13 23 6 20.5 6 13.5C6 8.5 9.5 5 13 3C16.5 5 20 8.5 20 13.5C20 20.5 13 23 13 23Z" fill="currentColor"/><path d="M13 23V9" stroke="#1d4a24" stroke-width="1.4" stroke-linecap="round"/></svg></span><span class="care">care</span></span>
 </header>
-<nav class="jump-nav" aria-label="Jump to section">
-  <a href="#demo">Try it here</a>
-  <a href="#calendar">Calendar</a>
-  <a href="#estimate">Estimate</a>
-  <a href="#details">Full details</a>
-  <a href="#try-it">Install</a>
-</nav>
 
 <main>
   <section class="hero">
@@ -374,6 +444,35 @@
     <button type="button" class="demo-reset" id="demo-reset" hidden>↺ Try it again</button>
   </section>
 
+  <section class="block" id="upcoming">
+    <h2 style="font-size:1.3rem;margin:0 0 .5rem;">Every room's watering, sorted into one list</h2>
+    <p>No need to open each room separately to see what's due. The Upcoming view lists every plant across every room, most overdue first — and it re-sorts the moment you water one. Try it:</p>
+    <ul class="upcoming-demo-list" id="upcoming-demo-list">
+      <li class="upcoming-demo-row" data-days="-2">
+        <span class="updemo-name">Pilea</span>
+        <span class="updemo-group">Living room</span>
+        <span class="updemo-badge overdue">Watering: 2 days overdue</span>
+        <button type="button" class="updemo-water-btn">Watered</button>
+      </li>
+      <li class="upcoming-demo-row" data-days="2">
+        <span class="updemo-name">Basil</span>
+        <span class="updemo-group">Kitchen</span>
+        <span class="updemo-badge ok">2 days left</span>
+      </li>
+      <li class="upcoming-demo-row" data-days="7">
+        <span class="updemo-name">Monstera</span>
+        <span class="updemo-group">Living room</span>
+        <span class="updemo-badge ok">7 days left</span>
+      </li>
+      <li class="upcoming-demo-row" data-days="16">
+        <span class="updemo-name">Snake plant</span>
+        <span class="updemo-group">Bedroom</span>
+        <span class="updemo-badge ok">16 days left</span>
+      </li>
+    </ul>
+    <button type="button" class="demo-reset" id="upcoming-demo-reset" hidden>↺ Reset the list</button>
+  </section>
+
   <section class="block feature" id="calendar">
     <div class="feature-text">
       <h2>A reminder on the calendar you already have open</h2>
@@ -410,6 +509,7 @@
       <li>A plant's photo and short description come straight from Wikipedia the moment you add it — toxicity to pets is the one field pulled from the ASPCA's own list instead, because a wrong guess there matters more than a wrong guess anywhere else.</li>
       <li>Group your plants by room — pick one of 8 built-in cover icons, or upload your own photo for the whole group.</li>
       <li>Upload your own photo for any individual plant too, any time, replacing the automatic Wikipedia one.</li>
+      <li>A different plant-care tip greets you at the top of the app every day — the same ten rotating in the header above, which you can also tap through yourself.</li>
     </ul>
   </section>
 
@@ -523,6 +623,81 @@ python run.py</code></pre>
     });
 
     resetBtn.addEventListener('click', reset);
+  })();
+
+  // Rotating daily tip: the same 10 messages the real app rotates through
+  // by calendar date, cycled here for a live taste of the feature. Auto-
+  // advances slowly, and is also directly clickable/keyboard-activatable.
+  (function () {
+    var tips = [
+      'Every leaf you keep alive is a small victory.',
+      "Plants don't rush — neither should you.",
+      'A little water today, a little more green tomorrow.',
+      'Your plants are rooting for you.',
+      'Consistency is the best fertilizer.',
+      'Even the toughest cactus appreciates a little care sometimes.',
+      'Slow growth is still growth.',
+      'A watered plant is a happy plant.',
+      'Take a breath — your plants are thriving because of you.',
+      'Small steps, deep roots.'
+    ];
+    var el = document.getElementById('tip-rotator');
+    if (!el) return;
+    var i = Math.floor(Math.random() * tips.length);
+
+    function show(next) {
+      el.style.opacity = '0';
+      setTimeout(function () {
+        i = next;
+        el.textContent = tips[i];
+        el.style.opacity = '1';
+      }, 200);
+    }
+
+    function advance() { show((i + 1) % tips.length); }
+
+    el.addEventListener('click', advance);
+    el.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); advance(); }
+    });
+    setInterval(advance, 6000);
+  })();
+
+  // Live "Upcoming" re-sort demo: client-side only. Watering the one
+  // overdue row flips its badge and re-sorts the list by days-left,
+  // mirroring the real Upcoming view's own sort + refresh behavior.
+  (function () {
+    var list = document.getElementById('upcoming-demo-list');
+    var resetBtn = document.getElementById('upcoming-demo-reset');
+    if (!list || !resetBtn) return;
+    var original = list.innerHTML;
+
+    list.addEventListener('click', function (e) {
+      var btn = e.target.closest('.updemo-water-btn');
+      if (!btn) return;
+      var row = btn.closest('.upcoming-demo-row');
+      row.style.opacity = '0';
+      setTimeout(function () {
+        var badge = row.querySelector('.updemo-badge');
+        badge.textContent = '7 days left';
+        badge.classList.remove('overdue');
+        badge.classList.add('ok');
+        row.dataset.days = '7';
+        btn.remove();
+
+        var rows = Array.prototype.slice.call(list.querySelectorAll('.upcoming-demo-row'));
+        rows.sort(function (a, b) { return parseInt(a.dataset.days, 10) - parseInt(b.dataset.days, 10); });
+        rows.forEach(function (r) { list.appendChild(r); });
+
+        row.style.opacity = '1';
+        resetBtn.hidden = false;
+      }, 250);
+    });
+
+    resetBtn.addEventListener('click', function () {
+      list.innerHTML = original;
+      resetBtn.hidden = true;
+    });
   })();
 
   // Copy-to-clipboard for the install command. No-op without JS or the
