@@ -38,9 +38,11 @@
   header.top {
     display: flex;
     align-items: center;
+    gap: 1rem;
     padding: 1.25rem 1.5rem;
     max-width: 920px;
     margin: 0 auto;
+    flex-wrap: wrap;
   }
   .logo {
     display: inline-flex;
@@ -105,25 +107,20 @@
     font-size: .9rem;
     max-width: 60ch;
   }
-  .tip-intro {
-    margin: 1.5rem 0 .4rem;
-    font-size: .85rem;
-    color: var(--muted);
-  }
   .tip-rotator {
+    flex: 1;
+    min-width: 0;
     margin: 0;
     font-style: italic;
-    font-size: 1.05rem;
-    color: var(--ink);
+    font-size: .9rem;
+    color: var(--muted);
+    text-align: center;
     cursor: pointer;
-    display: inline-block;
     transition: opacity .25s, color .2s;
   }
   .tip-rotator:hover, .tip-rotator:focus-visible { color: var(--green); }
-  .tip-hint {
-    margin: .3rem 0 0;
-    font-size: .75rem;
-    color: var(--muted);
+  @media (max-width: 560px) {
+    .tip-rotator { order: 3; flex-basis: 100%; margin-top: .3rem; }
   }
 
   section.block {
@@ -389,6 +386,7 @@
 <body>
 <header class="top">
   <span class="logo" aria-hidden="true">plant<span class="leaf"><svg viewBox="0 0 26 26" fill="none"><path d="M13 23C13 23 6 20.5 6 13.5C6 8.5 9.5 5 13 3C16.5 5 20 8.5 20 13.5C20 20.5 13 23 13 23Z" fill="currentColor"/><path d="M13 23V9" stroke="#1d4a24" stroke-width="1.4" stroke-linecap="round"/></svg></span><span class="care">care</span></span>
+  <p class="tip-rotator" id="tip-rotator" role="button" tabindex="0" aria-label="A new plant-care tip appears here every day in the real app. Tap for another." aria-live="polite">Every leaf you keep alive is a small victory.</p>
 </header>
 <nav class="jump-nav" aria-label="Jump to section">
   <a href="#demo">Try it here</a>
@@ -403,9 +401,6 @@
   <section class="hero">
     <h1>Water your houseplants on the calendar you already check.</h1>
     <p class="course-note">A semester project for an Advanced Programming course — a small, real houseplant tracker, built and shipped end to end: FastAPI, HTMX, SQLite.</p>
-    <p class="tip-intro">A different one of these greets you at the top of the app every day:</p>
-    <p class="tip-rotator" id="tip-rotator" role="button" tabindex="0" aria-live="polite">Every leaf you keep alive is a small victory.</p>
-    <p class="tip-hint">tap for another</p>
   </section>
 
   <section class="block">
@@ -512,7 +507,7 @@
       <li>A plant's photo and short description come straight from Wikipedia the moment you add it — toxicity to pets is the one field pulled from the ASPCA's own list instead, because a wrong guess there matters more than a wrong guess anywhere else.</li>
       <li>Group your plants by room — pick one of 8 built-in cover icons, or upload your own photo for the whole group.</li>
       <li>Upload your own photo for any individual plant too, any time, replacing the automatic Wikipedia one.</li>
-      <li>A different plant-care tip greets you at the top of the app every day — the same ten you can tap through above, rotating automatically.</li>
+      <li>A different plant-care tip greets you at the top of the app every day — the same ten rotating in the header above, which you can also tap through yourself.</li>
     </ul>
   </section>
 
