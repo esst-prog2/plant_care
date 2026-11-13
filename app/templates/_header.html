@@ -1,8 +1,10 @@
-<p class="daily-tip">{{ daily_tip() }}</p>
 <header class="app-bar">
-  <h1><a href="/" class="logo" aria-label="plant_care – kezdőlap">plant<span class="leaf"><svg viewBox="0 0 26 26" fill="none" aria-hidden="true"><path d="M13 23C13 23 6 20.5 6 13.5C6 8.5 9.5 5 13 3C16.5 5 20 8.5 20 13.5C20 20.5 13 23 13 23Z" fill="currentColor"/><path d="M13 23V9" stroke="#1d4a24" stroke-width="1.4" stroke-linecap="round"/></svg></span><span class="care">care</span></a></h1>
-  <nav class="app-nav" aria-label="Main">
-    <a href="/" class="{% if active_nav == 'groups' %}active{% endif %}">Groups</a>
-    <a href="{% if view_group_id is defined and view_group_id != 'all' %}/upcoming?view_group_id={{ view_group_id }}{% else %}/upcoming{% endif %}" class="{% if active_nav == 'upcoming' %}active{% endif %}">Upcoming</a>
-  </nav>
+  <p class="daily-tip">{{ daily_tip() }}</p>
+  <div class="app-bar-row">
+    <h1><a href="/" class="logo" aria-label="plant_care – kezdőlap">plant<span class="leaf"><svg viewBox="0 0 26 26" fill="none" aria-hidden="true"><path d="M13 23C13 23 6 20.5 6 13.5C6 8.5 9.5 5 13 3C16.5 5 20 8.5 20 13.5C20 20.5 13 23 13 23Z" fill="currentColor"/><path d="M13 23V9" stroke="#1d4a24" stroke-width="1.4" stroke-linecap="round"/></svg></span><span class="care">care</span></a></h1>
+    <nav class="app-nav" aria-label="Main">
+      <a href="/" class="{% if active_nav == 'groups' %}active{% endif %}">Groups</a>
+      <a href="{% if view_group_id is defined and view_group_id != 'all' %}/upcoming?view_group_id={{ view_group_id }}{% else %}/upcoming{% endif %}" class="{% if active_nav == 'upcoming' %}active{% endif %}">Upcoming</a>
+    </nav>
+  </div>
 </header>
