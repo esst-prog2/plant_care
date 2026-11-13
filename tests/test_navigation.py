@@ -29,11 +29,13 @@ def test_collection_view_has_a_breadcrumb_back_to_groups(client, db):
     group = db.create_group("Living room")
 
     html = client.get(f"/groups/{group.id}").text
-    assert '<span class="breadcrumb"><a href="/">Groups</a>' in html
-    assert "Living room" in html
+    assert 'class="breadcrumb"' in html
+    assert '<a href="/">Groups</a>' in html
+    assert 'class="breadcrumb-select"' in html
+    assert f'<option value="/groups/{group.id}" selected>Living room</option>' in html
 
 
-def test_collection_view_all_breadcrumb_shows_the_all_name(client):
+def test_collection_view_all_breadcrumb_selects_the_all_name(client):
     html = client.get("/groups/all").text
-    assert '<span class="breadcrumb"><a href="/">Groups</a>' in html
-    assert ">All</span>" in html
+    assert 'class="breadcrumb"' in html
+    assert '<option value="/groups/all" selected>All</option>' in html
