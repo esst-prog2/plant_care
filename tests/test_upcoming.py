@@ -110,4 +110,15 @@ def test_upcoming_reachable_from_landing_page(client):
 
 def test_upcoming_reachable_from_a_collection_view(client, db):
     group = db.create_group("Living room")
-    assert 'href="/upcoming"' in client.get(f"/groups/{group.id}").text
+    assert f'href="/upcoming?view_group_id={group.id}"' in client.get(f"/groups/{group.id}").text
+
+
+def test_upcoming_link_from_a_collection_view_carries_its_group_filter(client, db):
+    group = db.create_group("Living room")
+    add_ready(db, "InLivingRoom", 7, TODAY, group_id=group.id)
+
+    html = client.get(f"/groups/{group.id}").text
+    assert f'href="/upcoming?view_group_id={group.id}"' in html
+
+    upcoming_html = client.get(f"/upcoming?view_group_id={group.id}").text
+    assert "InLivingRoom" in upcoming_html
