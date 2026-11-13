@@ -55,7 +55,7 @@ def store_photo(
 
 
 def store_uploaded_photo(
-    content: bytes, content_type: str, photos_dir: Path, owner_id: int, prefix: str = ""
+    content: bytes, content_type: str, photos_dir: Path, owner_id: int | str, prefix: str = ""
 ) -> str | None:
     """Save a user-uploaded photo, replacing any existing file for this owner.
 
