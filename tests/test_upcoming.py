@@ -12,6 +12,14 @@ def test_upcoming_lists_plants_sorted_by_urgency(client, db):
     assert html.index("Overdue") < html.index("DueToday") < html.index("Future")
 
 
+def test_upcoming_row_links_to_the_plant_details(client, db):
+    plant = add_ready(db, "Monstera", 7, TODAY)
+
+    html = client.get("/upcoming").text
+    assert f'hx-get="/plants/{plant.id}"' in html
+    assert 'hx-target="#modal"' in html
+
+
 def test_upcoming_does_not_hide_a_long_interval_plant(client, db):
     add_ready(db, "FarOut", 30, TODAY)  # 30 days left, nothing else due sooner
 

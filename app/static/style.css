@@ -117,7 +117,7 @@ input[type=file] {
 .upcoming-list { list-style: none; padding: 0; margin: 0; display: grid; gap: .6rem; }
 .upcoming-row {
   display: flex; align-items: center; gap: 1rem; background: #fff; border: 1px solid var(--line);
-  border-radius: 10px; padding: .75rem 1rem;
+  border-radius: 10px; padding: .75rem 1rem; cursor: pointer;
 }
 .upcoming-name { font-weight: 600; flex: 1; min-width: 0; }
 .upcoming-group { color: var(--muted); font-size: .9rem; flex: none; }
