@@ -36,6 +36,19 @@ GROUP_PRESETS = [
     ("palm", "Palm"),
 ]
 
+TIPS = [
+    "Every leaf you keep alive is a small victory.",
+    "Plants don't rush — neither should you.",
+    "A little water today, a little more green tomorrow.",
+    "Your plants are rooting for you.",
+    "Consistency is the best fertilizer.",
+    "Even the toughest cactus appreciates a little care sometimes.",
+    "Slow growth is still growth.",
+    "A watered plant is a happy plant.",
+    "Take a breath — your plants are thriving because of you.",
+    "Small steps, deep roots.",
+]
+
 
 def _group_presets() -> list[dict]:
     return [
@@ -129,6 +142,11 @@ def create_app(
     # Cache-busts /static/style.css so a browser that cached an older version (e.g. from
     # before a restart) always picks up the current one instead of a stale copy.
     templates.env.globals["asset_version"] = int((APP_DIR / "static" / "style.css").stat().st_mtime)
+
+    def daily_tip() -> str:
+        return TIPS[clock().timetuple().tm_yday % len(TIPS)]
+
+    templates.env.globals["daily_tip"] = daily_tip
 
     def render(request: Request, template: str, headers: dict | None = None, **context):
         return templates.TemplateResponse(request, template, context, headers=headers)

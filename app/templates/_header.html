@@ -5,3 +5,4 @@
     <a href="{% if view_group_id is defined and view_group_id != 'all' %}/upcoming?view_group_id={{ view_group_id }}{% else %}/upcoming{% endif %}" class="{% if active_nav == 'upcoming' %}active{% endif %}">Upcoming</a>
   </nav>
 </header>
+<p class="daily-tip">{{ daily_tip() }}</p>

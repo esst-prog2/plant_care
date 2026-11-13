@@ -51,14 +51,14 @@ def tasks() -> FakeTasksClient:
 
 @pytest.fixture
 def make_client(config, db, clock):
-    def factory(service: CareDataService | None = None, tasks_client=None) -> TestClient:
+    def factory(service: CareDataService | None = None, tasks_client=None, clock_override=None) -> TestClient:
         service = service or CareDataService(LocalProvider(config.local_data_path))
         app = create_app(
             config,
             service=service,
             db=db,
             tasks_client=tasks_client,
-            clock=clock,
+            clock=clock_override or clock,
             start_scheduler=False,
         )
         return TestClient(app)
