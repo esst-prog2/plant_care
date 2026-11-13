@@ -12,18 +12,10 @@
 </header>
 <main>
   <h2 class="upcoming-title">Upcoming</h2>
-  {% if rows %}
-  <ul class="upcoming-list">
-    {% for row in rows %}
-    <li class="upcoming-row" hx-get="/plants/{{ row.plant.id }}" hx-target="#modal" hx-trigger="click, keyup[key=='Enter']" tabindex="0" role="button">
-      <span class="upcoming-name">{{ row.plant.name }}</span>
-      <span class="upcoming-group">{{ row.group_name }}</span>
-      <span class="badge {{ row.status }}">{{ row.label }}</span>
-    </li>
-    {% endfor %}
-  </ul>
-  {% else %}
-  <p class="empty">No plants yet. Use "+ Add New Plant" to add your first one.</p>
-  {% endif %}
+  <input type="hidden" id="upcoming-group-input" name="view_group_id" value="{{ view_group_id }}">
+  <div id="upcoming-wrap">
+    {% include "_upcoming_rows.html" %}
+  </div>
 </main>
+<div id="upcoming-refresher" hx-get="/upcoming-rows" hx-trigger="refreshGrid from:body" hx-include="#upcoming-group-input" hx-target="#upcoming-wrap"></div>
 {% endblock %}

@@ -401,6 +401,11 @@ def create_app(
             all_name=db.get_setting(ALL_GROUP_NAME_KEY, "All"),
         )
 
+    @app.get("/upcoming-rows", response_class=HTMLResponse)
+    def upcoming_rows_fragment(request: Request, view_group_id: str = "all"):
+        group_id = _parse_view_group_id(view_group_id)
+        return render(request, "_upcoming_rows.html", rows=_upcoming_rows(group_id))
+
     @app.get("/add", response_class=HTMLResponse)
     def add_panel(request: Request, view_group_id: str = "all"):
         return render(request, "_add_panel.html", view_group_id=view_group_id)

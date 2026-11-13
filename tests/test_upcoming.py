@@ -20,6 +20,31 @@ def test_upcoming_row_links_to_the_plant_details(client, db):
     assert 'hx-target="#modal"' in html
 
 
+def test_upcoming_page_listens_for_the_refresh_signal(client, db):
+    html = client.get("/upcoming").text
+    assert 'hx-get="/upcoming-rows"' in html
+    assert 'hx-trigger="refreshGrid from:body"' in html
+    assert 'hx-target="#upcoming-wrap"' in html
+
+
+def test_watering_a_plant_sends_the_refresh_signal(client, db):
+    plant = add_ready(db, "Monstera", 7, TODAY - timedelta(days=8))
+
+    response = client.post(f"/plants/{plant.id}/watered")
+    assert response.headers["HX-Trigger"] == "refreshGrid"
+
+
+def test_upcoming_rows_fragment_reflects_a_plant_just_watered(client, db):
+    plant = add_ready(db, "Monstera", 7, TODAY - timedelta(days=8))
+    assert "overdue" in client.get("/upcoming-rows").text
+
+    client.post(f"/plants/{plant.id}/watered")
+
+    html = client.get("/upcoming-rows").text
+    assert "overdue" not in html
+    assert "Monstera" in html
+
+
 def test_upcoming_does_not_hide_a_long_interval_plant(client, db):
     add_ready(db, "FarOut", 30, TODAY)  # 30 days left, nothing else due sooner
 
