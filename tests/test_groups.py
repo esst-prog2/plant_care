@@ -317,10 +317,26 @@ def test_edit_group_form_shows_edit_for_a_real_group(client, db):
     assert "cover-picker" in html
 
 
-def test_all_edit_modal_is_unchanged_no_cover_rename_label(client):
+def test_all_edit_modal_offers_a_cover_picker_like_a_real_group(client):
     html = client.get("/groups/all/edit").text
-    assert "Rename group" in html and "Edit group" not in html
-    assert "cover-picker" not in html
+    assert "Edit group" in html
+    assert "cover-picker" in html
+
+
+def test_all_group_can_be_given_a_preset_cover(client, db):
+    client.post("/groups/all/rename", data={"name": "All", "preset": "cactus"})
+    assert db.get_setting("all_group_photo") == "/static/group-presets/cactus.svg"
+    html = client.get("/").text
+    assert "/static/group-presets/cactus.svg" in html
+
+
+def test_all_group_can_be_given_an_uploaded_cover(client, db):
+    response = client.post(
+        "/groups/all/rename", data={"name": "All"}, files={"photo": ("mine.png", b"\x89PNGfakedata", "image/png")}
+    )
+    photo = db.get_setting("all_group_photo")
+    assert photo is not None and photo.startswith("/photos/group-all")
+    assert "All" in response.text
 
 
 def test_edit_group_form_preselects_the_current_preset(client, db):

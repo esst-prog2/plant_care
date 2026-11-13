@@ -14,7 +14,7 @@ from fastapi.templating import Jinja2Templates
 
 from .care import DUE, OK, OVERDUE, adjust_for_feedback, paginate, plant_days_left, starting_interval, status_of
 from .config import Config, build_tasks_client, load_config
-from .db import ALL_GROUP_NAME_KEY, FAILED, READY, Database, Plant
+from .db import ALL_GROUP_NAME_KEY, ALL_GROUP_PHOTO_KEY, FAILED, READY, Database, Plant
 from .photos import store_photo, store_uploaded_photo
 from .providers.composite import CareDataService, CareDataUnavailable, resolve_source
 from .providers.local_json import LocalProvider
@@ -168,6 +168,10 @@ def create_app(
             group = db.get_group(group_id)
             if group and group.photo:
                 return group.photo
+        else:
+            all_photo = db.get_setting(ALL_GROUP_PHOTO_KEY)
+            if all_photo:
+                return all_photo
         plants = db.list_plants(group_id=group_id)
         return (plants[0].photo if plants else None) or "/static/placeholder.svg"
 
@@ -328,14 +332,34 @@ def create_app(
     def edit_all_group(request: Request):
         return render(
             request, "_edit_group.html", rename_url="/groups/all/rename",
-            current_name=db.get_setting(ALL_GROUP_NAME_KEY, "All"), is_all=True,
+            current_name=db.get_setting(ALL_GROUP_NAME_KEY, "All"),
+            presets=_group_presets(), selected_preset=_preset_value(db.get_setting(ALL_GROUP_PHOTO_KEY)),
         )
 
     @app.post("/groups/all/rename", response_class=HTMLResponse)
-    def rename_all_group(request: Request, name: str = Form(...), page: int = Form(1)):
+    async def rename_all_group(
+        request: Request,
+        name: str = Form(...),
+        preset: str = Form(""),
+        photo: UploadFile | None = File(None),
+        page: int = Form(1),
+    ):
         name = name.strip()
         if not name:
             raise HTTPException(status_code=400, detail="A group name is required")
+        if photo is not None and photo.filename:
+            content = await photo.read()
+            stored = store_uploaded_photo(content, photo.content_type or "", config.photos_dir, "all", prefix="group-")
+            if stored is None:
+                return render(
+                    request, "_edit_group.html", rename_url="/groups/all/rename",
+                    current_name=db.get_setting(ALL_GROUP_NAME_KEY, "All"),
+                    presets=_group_presets(), selected_preset=_preset_value(db.get_setting(ALL_GROUP_PHOTO_KEY)),
+                    photo_error="That file couldn't be used as a cover (unsupported type or too large).",
+                )
+            db.set_setting(ALL_GROUP_PHOTO_KEY, f"{stored}?v={secrets.token_hex(4)}")
+        elif preset:
+            db.set_setting(ALL_GROUP_PHOTO_KEY, f"/static/group-presets/{preset}.svg")
         db.set_setting(ALL_GROUP_NAME_KEY, name)
         return groups_grid(request, page, headers={"HX-Trigger": "closeModal"})
 
@@ -352,7 +376,7 @@ def create_app(
             raise HTTPException(status_code=404, detail="Group not found")
         return render(
             request, "_edit_group.html", rename_url=f"/groups/{group_id}/rename", current_name=group.name,
-            is_all=False, presets=_group_presets(), selected_preset=_preset_value(group.photo),
+            presets=_group_presets(), selected_preset=_preset_value(group.photo),
         )
 
     @app.post("/groups/{group_id}/rename", response_class=HTMLResponse)
@@ -376,7 +400,7 @@ def create_app(
             if stored is None:
                 return render(
                     request, "_edit_group.html", rename_url=f"/groups/{group_id}/rename",
-                    current_name=group.name, is_all=False, presets=_group_presets(),
+                    current_name=group.name, presets=_group_presets(),
                     selected_preset=_preset_value(group.photo),
                     photo_error="That file couldn't be used as a cover (unsupported type or too large).",
                 )

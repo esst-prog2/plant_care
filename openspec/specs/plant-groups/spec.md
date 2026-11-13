@@ -22,7 +22,7 @@ The system SHALL show a landing page, as the application's entry point, with an 
 - **THEN** the landing page shows "All" plus the first five groups on page 1 and the rest on page 2, with the same page controls used by a scoped plant grid
 
 ### Requirement: User can create, rename and delete a group
-The system SHALL let the user create a group by typing a name, rename an existing group, and delete a group. Deleting a group SHALL require a confirmation. Deleting a group SHALL NOT delete its plants; they SHALL become unassigned and appear under "All" and no other group. The "All" card SHALL also be renamable, but SHALL NOT be deletable. The system SHALL let the user choose the group's cover image, either a built-in preset icon or an uploaded photo, when creating a group and later when editing it; a group whose cover has never been chosen SHALL keep showing an image automatically derived from its first-added plant's photo.
+The system SHALL let the user create a group by typing a name, rename an existing group, and delete a group. Deleting a group SHALL require a confirmation. Deleting a group SHALL NOT delete its plants; they SHALL become unassigned and appear under "All" and no other group. The "All" card SHALL also be renamable and SHALL also let the user choose its cover image the same way a real group does, but SHALL NOT be deletable. The system SHALL let the user choose the group's cover image, either a built-in preset icon or an uploaded photo, when creating a group and later when editing it; a group whose cover has never been chosen SHALL keep showing an image automatically derived from its first-added plant's photo.
 
 #### Scenario: Create a group
 - **WHEN** the user activates "+ New Group" and types "Living room"
@@ -47,6 +47,10 @@ The system SHALL let the user create a group by typing a name, rename an existin
 #### Scenario: Rename a group
 - **WHEN** the user renames "Living room" to "Lounge"
 - **THEN** the landing page shows the updated name, and plants previously assigned to it remain assigned to the same group under its new name
+
+#### Scenario: Give "All" a custom cover
+- **WHEN** the user edits the "All" card and picks a built-in preset icon or uploads a photo
+- **THEN** the "All" card immediately shows that chosen cover instead of the automatically derived one
 
 #### Scenario: Delete a group and confirm
 - **WHEN** the user deletes a group that has plants in it and confirms

@@ -71,6 +71,7 @@ CREATE TABLE IF NOT EXISTS settings (
 """
 
 ALL_GROUP_NAME_KEY = "all_group_name"
+ALL_GROUP_PHOTO_KEY = "all_group_photo"
 
 _MIGRATIONS = {
     "plants": {
