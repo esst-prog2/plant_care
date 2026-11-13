@@ -92,7 +92,16 @@ def test_upcoming_default_shows_every_plant_regardless_of_group(client, db):
 
 def test_upcoming_empty_state(client):
     html = client.get("/upcoming").text
-    assert "No plants yet" in html
+    assert "All caught up" in html
+
+
+def test_upcoming_empty_state_for_a_group_with_no_ready_plants(client, db):
+    kitchen = db.create_group("Kitchen")
+    add_ready(db, "InLivingRoom", 7, TODAY)
+
+    html = client.get("/upcoming", params={"view_group_id": str(kitchen.id)}).text
+    assert "All caught up" in html
+    assert "InLivingRoom" not in html
 
 
 def test_upcoming_reachable_from_landing_page(client):
