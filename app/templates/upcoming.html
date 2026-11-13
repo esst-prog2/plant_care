@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<header class="topbar">
+  <a href="/" class="back" aria-label="Back to groups">&larr;</a>
+  <select aria-label="Filter by group" onchange="location.href=this.value">
+    <option value="/upcoming?view_group_id=all" {% if current_group_id is none %}selected{% endif %}>{{ all_name }}</option>
+    {% for g in groups %}
+    <option value="/upcoming?view_group_id={{ g.id }}" {% if current_group_id == g.id %}selected{% endif %}>{{ g.name }}</option>
+    {% endfor %}
+  </select>
+  <h1><a href="/" class="logo" aria-label="plant_care – kezdőlap">plant<span class="leaf"><svg viewBox="0 0 26 26" fill="none" aria-hidden="true"><path d="M13 23C13 23 6 20.5 6 13.5C6 8.5 9.5 5 13 3C16.5 5 20 8.5 20 13.5C20 20.5 13 23 13 23Z" fill="currentColor"/><path d="M13 23V9" stroke="#1d4a24" stroke-width="1.4" stroke-linecap="round"/></svg></span><span class="care">care</span></a></h1>
+</header>
+<main>
+  <h2 class="upcoming-title">Upcoming</h2>
+  {% if rows %}
+  <ul class="upcoming-list">
+    {% for row in rows %}
+    <li class="upcoming-row">
+      <span class="upcoming-name">{{ row.plant.name }}</span>
+      <span class="upcoming-group">{{ row.group_name }}</span>
+      <span class="badge {{ row.status }}">{{ row.label }}</span>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="empty">No plants yet. Use "+ Add New Plant" to add your first one.</p>
+  {% endif %}
+</main>
+{% endblock %}

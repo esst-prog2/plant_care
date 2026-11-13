@@ -108,6 +108,24 @@ input[type=file] {
   text-decoration: none; font-size: 1.2rem; flex: none;
 }
 .back:hover, .back:focus-visible { background: var(--green-bg); }
+.nav-link {
+  display: inline-flex; align-items: center; padding: .5rem 1rem; border: 1px solid var(--line);
+  border-radius: 8px; background: #fff; color: var(--ink); text-decoration: none; font: inherit;
+}
+.nav-link:hover, .nav-link:focus-visible { border-color: var(--green); color: var(--green); }
+.upcoming-title { margin: 1rem 0 1rem; }
+.upcoming-list { list-style: none; padding: 0; margin: 0; display: grid; gap: .6rem; }
+.upcoming-row {
+  display: flex; align-items: center; gap: 1rem; background: #fff; border: 1px solid var(--line);
+  border-radius: 10px; padding: .75rem 1rem;
+}
+.upcoming-name { font-weight: 600; flex: 1; min-width: 0; }
+.upcoming-group { color: var(--muted); font-size: .9rem; flex: none; }
+.upcoming-row .badge { flex: none; }
+@media (max-width: 560px) {
+  .upcoming-row { flex-wrap: wrap; }
+  .upcoming-group { order: 3; width: 100%; }
+}
 .results { list-style: none; padding: 0; margin: .75rem 0 0; display: grid; gap: .4rem; }
 .results button { width: 100%; text-align: left; }
 .htmx-indicator { display: none; color: var(--muted); font-size: .85rem; }
