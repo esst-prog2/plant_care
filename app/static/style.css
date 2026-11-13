@@ -10,7 +10,7 @@
 }
 * { box-sizing: border-box; }
 body { margin: 0; font-family: system-ui, "Segoe UI", sans-serif; color: var(--ink); background: var(--bg); }
-.app-bar { padding: .45rem 1.5rem .6rem; border-bottom: 1px solid var(--line); }
+.app-bar { padding: .45rem 1.5rem .6rem; border-bottom: 1px solid var(--line); background: #fff; }
 .app-bar-row { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-top: .3rem; }
 .app-bar-row h1 { margin: 0; }
 .app-nav {
