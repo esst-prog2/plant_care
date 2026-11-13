@@ -23,3 +23,17 @@ def test_upcoming_view_shows_upcoming_as_the_active_destination(client):
     html = client.get("/upcoming").text
     assert '<a href="/" class="">Groups</a>' in html
     assert '<a href="/upcoming" class="active">Upcoming</a>' in html
+
+
+def test_collection_view_has_a_breadcrumb_back_to_groups(client, db):
+    group = db.create_group("Living room")
+
+    html = client.get(f"/groups/{group.id}").text
+    assert '<span class="breadcrumb"><a href="/">Groups</a>' in html
+    assert "Living room" in html
+
+
+def test_collection_view_all_breadcrumb_shows_the_all_name(client):
+    html = client.get("/groups/all").text
+    assert '<span class="breadcrumb"><a href="/">Groups</a>' in html
+    assert ">All</span>" in html

@@ -2,7 +2,10 @@
 {% block content %}
 {% set active_nav = "groups" %}
 {% include "_header.html" %}
+{% set matches = groups | selectattr('id', 'equalto', current_group_id) | list %}
+{% set current_name = matches[0].name if matches else all_name %}
 <div class="page-toolbar">
+  <span class="breadcrumb"><a href="/">Groups</a><span class="sep">/</span>{{ current_name }}</span>
   <select aria-label="Switch group" onchange="location.href=this.value">
     <option value="/groups/all" {% if current_group_id is none %}selected{% endif %}>{{ all_name }}</option>
     {% for g in groups %}
