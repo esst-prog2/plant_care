@@ -13,13 +13,17 @@ body { margin: 0; font-family: system-ui, "Segoe UI", sans-serif; color: var(--i
 .app-bar { display: flex; align-items: center; gap: 1rem; padding: .6rem 1.5rem; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
 .app-bar h1 { margin: 0; }
 .app-nav {
-  display: flex; gap: .2rem; margin-left: auto; border: 1px solid var(--line); border-radius: 999px; padding: .15rem;
+  display: flex; gap: .2rem; border: 1px solid var(--line); border-radius: 999px; padding: .15rem;
 }
 .app-nav a {
   padding: .35rem .9rem; border-radius: 999px; font-size: .9rem; font-weight: 600; color: var(--muted); text-decoration: none;
 }
 .app-nav a:hover, .app-nav a:focus-visible { color: var(--green); background: var(--green-bg); }
 .app-nav a.active, .app-nav a.active:hover, .app-nav a.active:focus-visible { background: var(--green); color: #fff; }
+.daily-tip { flex: 1; min-width: 0; margin: 0; font-size: .85rem; font-style: italic; color: var(--muted); text-align: center; }
+@media (max-width: 560px) {
+  .daily-tip { order: 3; flex-basis: 100%; }
+}
 .page-toolbar { display: flex; align-items: center; gap: .75rem; padding: .6rem 1.5rem 1rem; flex-wrap: wrap; }
 .page-toolbar button.primary { margin-left: auto; }
 .breadcrumb { font-size: .95rem; color: var(--ink); display: inline-flex; align-items: center; }
